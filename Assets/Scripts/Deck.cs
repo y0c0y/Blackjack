@@ -21,9 +21,9 @@ public class Deck
 
         List<Card> tmp_deck = new List<Card>();
 
-        foreach (Card.Suit suit in System.Enum.GetValues(typeof(Card.Suit)))
+        foreach (Enums.Suit suit in System.Enum.GetValues(typeof(Enums.Suit)))
         {
-            foreach (Card.Value value in System.Enum.GetValues(typeof(Card.Value)))
+            foreach (Enums.Value value in System.Enum.GetValues(typeof(Enums.Value)))
             {
                 Card card = new Card();
                 card.suit = suit;

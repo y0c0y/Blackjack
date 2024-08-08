@@ -1,13 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+
     private BlackjackGame game;
 
-    public GameObject playerCardPrefab;
-    public GameObject dealerCardPrefab;
+    public Text playerScoreText;
+    public Text dealerScoreText;
+
+    public Button hitButton;
+    public Button stayButton;
 
     // Start is called before the first frame update
     void Start()
@@ -19,14 +24,15 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void UpdateScore()
     {
-        List<Card> player = game.GetPlayer();
-        List<Card> dealer = game.GetDealer();
-
-        int playerScore = game.GetPlayerScore();
-        int dealerScore = game.GetDealerScore();
-
-        Debug.Log("Player Score: " + playerScore);
-        Debug.Log("Dealer Score: " + dealerScore);
-        
+        playerScoreText.text = "Player Score: " + game.GetPlayerScore();
+        dealerScoreText.text = "Dealer Score: " + game.GetDealerScore();
     }
+
+
+    void OnHit()
+    {
+        game.Hit(game.GetPlayer());
+        UpdateScore();
+    }
+
 }

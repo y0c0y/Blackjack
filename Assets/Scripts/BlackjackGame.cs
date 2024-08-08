@@ -4,29 +4,39 @@ using UnityEngine;
 
 public class BlackjackGame
 {
-    public Deck deck;
-    public List<Card> player;
-    public List<Card> dealer;    
+    private Enums.GameState _state;
 
-    void InitializeGame()
+    private Deck deck;
+    private List<Card> player;
+    private List<Card> dealer;    
+
+    void Blackjack()
     {
         deck = new Deck();
-        
-        deck.DeckReset();
-
         player = new List<Card>();
         dealer = new List<Card>();
         StartGame();
     }
 
-    void StartGame()
+    void StartGame() // StartGame() is called in InitializeGame()
     {
-        player.Add(deck.DealCard());
-        player.Add(deck.DealCard());
+        deck.DeckReset();
+        player.Clear();
+        dealer.Clear();
 
-        dealer.Add(deck.DealCard());
-        dealer.Add(deck.DealCard());
+        Hit(player);
+        Hit(player);
+
+        Hit(dealer);
+        Hit(dealer);
     }
+
+    public void Hit(List<Card> someone)
+    {
+        someone.Add(deck.DealCard());
+    }
+
+
 
     public int GetScore(List<Card> cards)
     {
@@ -36,7 +46,7 @@ public class BlackjackGame
         foreach (Card card in cards)
         {
             score += card.GetValue();
-            if (card.value == Card.Value.Ace)
+            if (card.value == Enums.Value.Ace)
             {
                 aceCount++;
             }
