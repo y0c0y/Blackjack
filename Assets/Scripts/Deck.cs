@@ -6,28 +6,31 @@ using UnityEngine;
 public class Deck
 {
 
-    public List<Card> cards;
-    public int cardIdx;
-    public bool isUsing;
-    void Start()
-    {
-        InitializeDeck();
-        DeckReset();
-    }
+    private List<Card> cards;
+    private int cardIdx;
+    private bool isUsing;
 
-    void InitializeDeck()
+    public Deck()
     {
         cards = new List<Card>();
+        cardIdx = 0;
+        isUsing = false;
+    }
 
+    public int GetCardIdx() => cardIdx;
+    public List<Card> GetCards() => cards;
+    public void ChangeIsUsing() => this.isUsing = !isUsing;
+    public bool GetIsUsing() => isUsing;
+
+    public void InitializeDeck() // Make 6 Decks
+    {
         List<Card> tmp_deck = new List<Card>();
 
         foreach (Enums.Suit suit in System.Enum.GetValues(typeof(Enums.Suit)))
         {
             foreach (Enums.Value value in System.Enum.GetValues(typeof(Enums.Value)))
             {
-                Card card = new Card();
-                card.suit = suit;
-                card.value = value;
+                Card card = new Card(suit, value);
                 tmp_deck.Add(card);
             }
         }
@@ -38,15 +41,15 @@ public class Deck
         }
     }
 
-    public void DeckReset()
+    public void DeckReset() // Still using cards, but reset cardIdx
     {
         cardIdx = 0;
         isUsing = true;
-        Shuffle(ref cards);
+        Shuffle();
     }
 
-   public void Shuffle(ref List<Card> cards)// Mordern Fisher-Yates shuffle
-   {
+    void Shuffle()// Mordern Fisher-Yates shuffle
+    {
         System.Random rand = new System.Random();
 
         int cnt = cards.Count;
@@ -59,19 +62,28 @@ public class Deck
             cards[i] = cards[r];
             cards[r] = tmp;
         }
-   }
-   
+    }
+
     public Card DealCard()
     {
-
-        if (cards.Count * 0.8 >  cardIdx || isUsing)
+        if (cards.Count * 0.8 > cardIdx)
         {
             Card card = cards[cardIdx];
             cardIdx++;
             return card;
         }
+        else if (cards.Count * 0.8 <= cardIdx && isUsing)
+        {
+            Debug.Log("Last Game!!");
 
-        return null;
+            Card card = cards[cardIdx];
+            cardIdx++;
+            return card;
+        }
+        else
+        {
+            Debug.Log("No more cards!!");
+            return null;
+        }
     }
-
 }

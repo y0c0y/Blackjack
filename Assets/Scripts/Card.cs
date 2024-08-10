@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Card
+public class Card 
 {
-    public Enums.Suit suit;
-    public Enums.Value value;
-
-    public int GetValue()
+    private Enums.Suit suit;
+    private Enums.Value value;
+    
+    public Card(Enums.Suit suit, Enums.Value value)
     {
-        return (int)value;
+        this.suit = suit;
+        this.value = value;
     }
 
-    public string GetSuit()
-    {
-        return suit.ToString();
-    }
+    public int GetValue() => (int)value;
+    public string GetSuit() =>suit.ToString();
 }

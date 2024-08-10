@@ -42,17 +42,18 @@ public class Enums
 
     public enum GameResult
     {
-        Blackjack,
-        Bust,
+        PlayerBlackjack,
+        PlayerWin,
+        DealerBlackjack,
+        DealerWin,
+        PlayerBust,
+        DealerBust,
         Push
     }
 
-    public enum GameState
+    public enum GameMode
     {
-        PlayerTurn,
-        DealerTurn,
-        Win,
-        Lose,
-        Draw
+        SinglePlayer,
+        MultiPlayer
     }
 }

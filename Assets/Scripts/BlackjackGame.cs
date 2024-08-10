@@ -4,65 +4,117 @@ using UnityEngine;
 
 public class BlackjackGame
 {
-    private Enums.GameState _state;
+
+    private bool isPlayerTurn;
 
     private Deck deck;
-    private List<Card> player;
-    private List<Card> dealer;    
+    private Player player;
+    private Player dealer;
 
-    void Blackjack()
+    public BlackjackGame()
     {
         deck = new Deck();
-        player = new List<Card>();
-        dealer = new List<Card>();
-        StartGame();
+        player = new Player();
+        dealer = new Player();
     }
 
-    void StartGame() // StartGame() is called in InitializeGame()
+    public int GetPlayerScore() => player.CalculateScore();
+    public int GetDealerScore() => dealer.CalculateScore();
+    public bool GetIsPlayerTurn() => isPlayerTurn;
+    public Player GetPlayer() => player;
+    public Player GetDealer() => dealer;
+    public Deck GetDeck() => deck;
+
+    public void StartGame() // StartGame() is called in InitializeGame()
     {
+        deck.InitializeDeck();
         deck.DeckReset();
-        player.Clear();
-        dealer.Clear();
 
-        Hit(player);
-        Hit(player);
+        isPlayerTurn = true;
 
-        Hit(dealer);
-        Hit(dealer);
+        InGame();
     }
 
-    public void Hit(List<Card> someone)
+    public void ChangeTurn()
     {
-        someone.Add(deck.DealCard());
+        isPlayerTurn = !isPlayerTurn;
     }
 
-
-
-    public int GetScore(List<Card> cards)
+    public void InGame() // ResetGame() is called in InitializeGame()
     {
-        int score = 0;
-        int aceCount = 0;
+        player.ResetHand();
+        dealer.ResetHand();
 
-        foreach (Card card in cards)
-        {
-            score += card.GetValue();
-            if (card.value == Enums.Value.Ace)
-            {
-                aceCount++;
-            }
-        }
-
-        while (score > 21 && aceCount > 0)
-        {
-            score -= 10;
-            aceCount--;
-        }
-
-        return score;
+        DealInitialCards();
     }
 
-    public List<Card> GetPlayer() => player; 
-    public List<Card> GetDealer() => dealer;
-    public int GetPlayerScore() => GetScore(player);
-    public int GetDealerScore() => GetScore(dealer);
+    void DealInitialCards()
+    {
+        player.ReceiveCard(deck.DealCard());
+        Debug.Log("Player's first card: " + player.GetHand()[0].GetSuit() + " " + player.GetHand()[0].GetValue());
+        player.ReceiveCard(deck.DealCard());
+        Debug.Log("Player's second card: " + player.GetHand()[1].GetSuit() + " " + player.GetHand()[1].GetValue());
+        dealer.ReceiveCard(deck.DealCard());
+        Debug.Log("Dealer's first card: " + dealer.GetHand()[0].GetSuit() + " " + dealer.GetHand()[0].GetValue());
+        dealer.ReceiveCard(deck.DealCard());
+        Debug.Log("Dealer's second card: " + dealer.GetHand()[1].GetSuit() + " " + dealer.GetHand()[1].GetValue());
+    }
+
+    public Card Hit()
+    {
+        Player tmp = isPlayerTurn ? player : dealer;
+
+        Card card = deck.DealCard();
+        if (card == null)
+        {
+            deck.DeckReset();
+            card = deck.DealCard();
+        }
+        tmp.ReceiveCard(card);
+
+        return card;
+    }
+
+    public void Stay()
+    {
+        isPlayerTurn = false;
+    }
+
+    public Enums.GameResult CheckWinner()
+    {
+        int playerScore = player.CalculateScore();
+        int dealerScore = dealer.CalculateScore();
+
+
+        if (playerScore == dealerScore)
+        {
+            return Enums.GameResult.Push;
+        }
+        else if (playerScore == 21)
+        {
+            return Enums.GameResult.PlayerBlackjack;
+        }
+        else if (dealerScore == 21)
+        {
+            return Enums.GameResult.DealerBlackjack;
+        }
+        else if (playerScore > 21)
+        {
+            return Enums.GameResult.PlayerBust;
+        }
+        else if (dealerScore > 21)
+        {
+            return Enums.GameResult.DealerBust;
+        }
+        else if (playerScore > dealerScore)
+        {
+            return Enums.GameResult.PlayerWin;
+        }
+        else
+        {
+            return Enums.GameResult.DealerWin;
+        }
+    }
+
+
 }
