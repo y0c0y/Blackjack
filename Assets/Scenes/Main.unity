@@ -345,7 +345,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 305.5, y: 28.199993}
+  m_AnchoredPosition: {x: 323.10004, y: -50.60001}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &378761739
@@ -619,7 +619,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!210 &527682748
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -683,7 +683,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -308, y: 80}
+  m_AnchoredPosition: {x: -310.9, y: -1.6}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &588817890
@@ -768,7 +768,7 @@ Transform:
   m_GameObject: {fileID: 812244835}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.16, y: -1.07, z: -0.037761826}
+  m_LocalPosition: {x: -1, y: -1.51, z: -0.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -819,7 +819,7 @@ MonoBehaviour:
   playerHand: {fileID: 812244837}
   dealerHand: {fileID: 1580597500}
   cardSprites: []
-  cardSpriteRenderer: {fileID: 0}
+  cardSpriteRenderer: {fileID: 1271956749}
 --- !u!4 &835111045
 Transform:
   m_ObjectHideFlags: 0
@@ -1025,7 +1025,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 305.5, y: 76.2}
+  m_AnchoredPosition: {x: 323.1, y: -2.6}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1072550632
@@ -1256,7 +1256,7 @@ Transform:
   m_GameObject: {fileID: 1143394127}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: -1.2, z: 0}
+  m_LocalPosition: {x: -0.25, y: -2.43, z: 0}
   m_LocalScale: {x: 17.435019, y: 4.674162, z: 13.9968815}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1265,6 +1265,11 @@ Transform:
 --- !u!1 &1271956748 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2342767132797856033, guid: 1e88271f4375791479aa0a9b3e0e47f1, type: 3}
+  m_PrefabInstance: {fileID: 6275341846022772907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &1271956749 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2752879523319774673, guid: 1e88271f4375791479aa0a9b3e0e47f1, type: 3}
   m_PrefabInstance: {fileID: 6275341846022772907}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1382674542
@@ -1467,7 +1472,7 @@ Transform:
   m_GameObject: {fileID: 1580597498}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.01, y: -0.1, z: -0.037761826}
+  m_LocalPosition: {x: -1, y: 0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1588,7 +1593,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -307, y: 138}
+  m_AnchoredPosition: {x: -307.8, y: 160.9}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1828824269

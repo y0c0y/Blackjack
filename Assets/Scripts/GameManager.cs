@@ -36,101 +36,53 @@ public class GameManager : MonoBehaviour
     {
         InitializeGame();
         game = new BlackjackGame();
+        game.OnCardDealt += SetCardImg;
         game.StartGame();
-
-        cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
-
-        SetCardImg();
         UpdateScore();
+
     }
 
     //Assets/Sprites/CuteCards.png
 
-    void SetCardImg()
+    public void SetCardImg(bool isPlayer, int cardIndex)
     {
 
-        GameObject Hand = game.GetIsPlayerTurn()? playerHand.gameObject : dealerHand.gameObject;
+        Debug.Log("SetCardImg called for " + (isPlayer ? "Player" : "Dealer") + " with cardIndex: " + cardIndex);
+        GameObject Hand = isPlayer ? playerHand.gameObject : dealerHand.gameObject;
 
-        // Card 프리팹 인스턴스화 후 cardImage에 Image 컴포넌트 할당
+        // 카드가 나란히 배치되도록 offset 설정
+        float offsetX = 1.0f; // 카드 간의 간격 (원하는 간격으로 조정 가능)
+        Vector3 cardPosition = Hand.transform.position + new Vector3(cardIndex * offsetX, 0, 0);
 
-        GameObject cardInstance = Instantiate(cardPrefab, Hand.transform.position, Quaternion.identity);
+        // 카드 생성 및 위치 설정
+        GameObject cardInstance = Instantiate(cardPrefab, cardPosition, Quaternion.identity);
         SpriteRenderer spriteRenderer = cardInstance.GetComponent<SpriteRenderer>();
-        int idx = game.GetOnTurnPlayer().GetHand()[0].GetSourceIdx();
+
         if (spriteRenderer != null)
         {
-            spriteRenderer.sprite = cardSprites[idx];
-            Debug.Log("Sprite Found: " + cardSprites[idx].name);
+            Player player = isPlayer ? game.GetPlayer() : game.GetDealer();
+            int idx = player.GetHand()[cardIndex].GetSourceIdx();
+
+            if (idx >= 0 && idx < cardSprites.Length)
+            {
+                spriteRenderer.sprite = cardSprites[idx];
+                Debug.Log("Sprite Found: " + cardSprites[idx].name);
+            }
+            else
+            {
+                Debug.LogError("Index " + idx + " is out of bounds for cardSprites array.");
+            }
         }
         else
         {
             Debug.LogError("SpriteRenderer is null!");
         }
+
+        Canvas.ForceUpdateCanvases();
     }
 
 
-
-    //void SetCardImg()
-    //{
-    //    string sourcePath = game.GetOnTurnPlayer().GetHand()[0].GetSourcePath();
-    //    cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
-    //    Debug.Log(cardSprites.Length);
-    //    Debug.Log(sourcePath);
-    //    //foreach (Sprite sprite in cardSprites)
-    //    //{
-    //    //    Debug.Log(sprite.name);
-    //    //}
-
-    //    Sprite targetSprite = null;
-
-    //    for (int i = 0; i < cardSprites.Length; i++)
-    //    {
-    //        if (cardSprites[i].name == sourcePath)
-    //        {
-    //            targetSprite = cardSprites[i];
-    //            break;
-    //        }
-    //    }
-
-    //    Debug.Log(cardSprites.Length);
-
-    //    if (targetSprite == null)
-    //    {
-    //        Debug.Log("No Sprite Found");
-    //    }
-    //    else
-    //    {
-    //        cardImage.sprite = targetSprite;
-    //    }
-    //}
-
-    void ShowCard()
-    {
-        GameObject card = Instantiate(cardPrefab, playerHand);
-
-        SpriteRenderer cardSpriteRenderer = card.GetComponent<SpriteRenderer>();
-        if(cardSpriteRenderer != null)
-        {
-            cardSpriteRenderer.sprite = cardSprites[0];
-        }
-    }
-
-    //private void Update()
-    //{
-    //    if (game.GetIsPlayerTurn())
-    //    {
-    //        hitButton.interactable = true;
-    //        stayButton.interactable = true;
-    //    }
-    //    else
-    //    {
-    //        hitButton.interactable = false;
-    //        stayButton.interactable = false;
-    //    }
-    //}
-
-   
-
-    void UpdateScore()
+    public void UpdateScore()
     {
         playerScoreText.text = "Player Score: " + game.GetPlayerScore();
         dealerScoreText.text = "Dealer Score: " + game.GetDealerScore();
@@ -138,7 +90,7 @@ public class GameManager : MonoBehaviour
 
    
 
-    void CheckResult()
+    public void CheckResult()
     {
         UpdateScore();
         game.CheckWinner(game.GetPlayerScore(), game.GetDealerScore());
@@ -178,15 +130,17 @@ public class GameManager : MonoBehaviour
         Debug.Log("Result: " + resultText.text);
     }
 
-    void OnHit()
+    public void OnHit()
     {
+        Debug.Log("Hit");
+
         Card card = game.Hit();
         Debug.Log("Hit: " + card.GetSuit() + " " + card.GetValue());
         CheckResult();
 
     }
 
-    void OnStay()
+    public void OnStay()
     {   
         game.ChangeTurn();
 
@@ -212,6 +166,12 @@ public class GameManager : MonoBehaviour
 
         hitButton.gameObject.SetActive(true);
         stayButton.gameObject.SetActive(true);
+
+        cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
+
+        hitButton.onClick.AddListener(OnHit);
+        stayButton.onClick.AddListener(OnStay);
+
 
         //playAgainButton.onClick.AddListener(ResetGame);
         //exitButton.onClick.AddListener(EndGame);

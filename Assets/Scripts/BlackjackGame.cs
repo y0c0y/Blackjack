@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,8 @@ using UnityEngine;
 public class BlackjackGame
 {
     public Enums.GameResult _result = Enums.GameResult.None;
+
+    public event Action<bool, int> OnCardDealt;
 
     private bool isPlayerTurn;
 
@@ -53,16 +56,27 @@ public class BlackjackGame
 
     void DealInitialCards()
     {
+        // Player에게 카드 두 장 배분
         player.ReceiveCard(deck.DealCard());
-        Debug.Log("Player's first card: " + player.GetHand()[0].GetSuit() + " " + player.GetHand()[0].GetValue());
+        OnCardDealt?.Invoke(true, 0);
+        // 첫 번째 카드 이미지 설정
+
         player.ReceiveCard(deck.DealCard());
-        Debug.Log("Player's second card: " + player.GetHand()[1].GetSuit() + " " + player.GetHand()[1].GetValue());
+        OnCardDealt?.Invoke(true, 1);
+        // 두 번째 카드 이미지 설정
+
+        // Dealer에게 카드 두 장 배분
         dealer.ReceiveCard(deck.DealCard());
-        Debug.Log("Dealer's first card: " + dealer.GetHand()[0].GetSuit() + " " + dealer.GetHand()[0].GetValue());
+        OnCardDealt?.Invoke(false, 0);
+        // 첫 번째 카드 이미지 설정
+
         dealer.ReceiveCard(deck.DealCard());
-        Debug.Log("Dealer's second card: " + dealer.GetHand()[1].GetSuit() + " " + dealer.GetHand()[1].GetValue());
+        OnCardDealt?.Invoke(false, 1);
+        // 두 번째 카드 이미지 설정
+
         CheckBlackjack();
     }
+
 
     public Card Hit()
     {
@@ -75,6 +89,7 @@ public class BlackjackGame
             card = deck.DealCard();
         }
         tmp.ReceiveCard(card);
+        OnCardDealt?.Invoke(isPlayerTurn, tmp.GetHand().Count - 1);
 
         return card;
     }
@@ -99,6 +114,8 @@ public class BlackjackGame
             _result = Enums.GameResult.DealerBlackjack;
         }
         else _result = Enums.GameResult.None;
+
+        Debug.Log("Result: " + _result);
     }
 
     public void CheckWinner(int playerScore ,int dealerScore)
