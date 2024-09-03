@@ -6,13 +6,9 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
 
-    public Enums.GameResult _result;
-
-
     private BlackjackGame game;
 
     public Canvas menuCanvas;
-
     public Canvas inGameCanvas;
 
     public Text playerScoreText;
@@ -29,44 +25,110 @@ public class GameManager : MonoBehaviour
     public Button exitButton;
     public Button playingButton;
 
+    public GameObject cardPrefab;
+    public Transform playerHand;
+    public Transform dealerHand;
+
+    public Sprite[] cardSprites;
+    public SpriteRenderer cardSpriteRenderer;
+
     void Start()
     {
+        InitializeGame();
         game = new BlackjackGame();
         game.StartGame();
 
+        cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
 
+        SetCardImg();
         UpdateScore();
-
-        hitButton.onClick.AddListener(OnHit);
-        stayButton.onClick.AddListener(OnStay);
     }
 
-    //int CheckResult()
-    //{
-    //    int playerScore = game.GetPlayerScore();
-    //    int dealerScore = game.GetDealerScore();
+    //Assets/Sprites/CuteCards.png
 
-    //    if (playerScore > 21)
+    void SetCardImg()
+    {
+
+        GameObject Hand = game.GetIsPlayerTurn()? playerHand.gameObject : dealerHand.gameObject;
+
+        // Card 프리팹 인스턴스화 후 cardImage에 Image 컴포넌트 할당
+
+        GameObject cardInstance = Instantiate(cardPrefab, Hand.transform.position, Quaternion.identity);
+        SpriteRenderer spriteRenderer = cardInstance.GetComponent<SpriteRenderer>();
+        int idx = game.GetOnTurnPlayer().GetHand()[0].GetSourceIdx();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sprite = cardSprites[idx];
+            Debug.Log("Sprite Found: " + cardSprites[idx].name);
+        }
+        else
+        {
+            Debug.LogError("SpriteRenderer is null!");
+        }
+    }
+
+
+
+    //void SetCardImg()
+    //{
+    //    string sourcePath = game.GetOnTurnPlayer().GetHand()[0].GetSourcePath();
+    //    cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
+    //    Debug.Log(cardSprites.Length);
+    //    Debug.Log(sourcePath);
+    //    //foreach (Sprite sprite in cardSprites)
+    //    //{
+    //    //    Debug.Log(sprite.name);
+    //    //}
+
+    //    Sprite targetSprite = null;
+
+    //    for (int i = 0; i < cardSprites.Length; i++)
     //    {
-    //        return -1;
+    //        if (cardSprites[i].name == sourcePath)
+    //        {
+    //            targetSprite = cardSprites[i];
+    //            break;
+    //        }
     //    }
-    //    else if (dealerScore > 21)
+
+    //    Debug.Log(cardSprites.Length);
+
+    //    if (targetSprite == null)
     //    {
-    //        return 1;
-    //    }
-    //    else if (playerScore == dealerScore)
-    //    {
-    //        return 0;
-    //    }
-    //    else if (playerScore > dealerScore)
-    //    {
-    //        return 1;
+    //        Debug.Log("No Sprite Found");
     //    }
     //    else
     //    {
-    //        return -1;
+    //        cardImage.sprite = targetSprite;
     //    }
     //}
+
+    void ShowCard()
+    {
+        GameObject card = Instantiate(cardPrefab, playerHand);
+
+        SpriteRenderer cardSpriteRenderer = card.GetComponent<SpriteRenderer>();
+        if(cardSpriteRenderer != null)
+        {
+            cardSpriteRenderer.sprite = cardSprites[0];
+        }
+    }
+
+    //private void Update()
+    //{
+    //    if (game.GetIsPlayerTurn())
+    //    {
+    //        hitButton.interactable = true;
+    //        stayButton.interactable = true;
+    //    }
+    //    else
+    //    {
+    //        hitButton.interactable = false;
+    //        stayButton.interactable = false;
+    //    }
+    //}
+
+   
 
     void UpdateScore()
     {
@@ -74,27 +136,88 @@ public class GameManager : MonoBehaviour
         dealerScoreText.text = "Dealer Score: " + game.GetDealerScore();
     }
 
+   
+
+    void CheckResult()
+    {
+        UpdateScore();
+        game.CheckWinner(game.GetPlayerScore(), game.GetDealerScore());
+
+        Enums.GameResult _result = game._result;
+
+        resultText.text = "";
+
+        switch (_result)
+        {
+            case Enums.GameResult.PlayerWin:
+                resultText.text = "You win!!!";
+                break;
+            case Enums.GameResult.DealerWin:
+                resultText.text = "You lose....";
+                break;
+            case Enums.GameResult.Push:
+                resultText.text = "Push, You can't get any coins ";
+                break;
+            case Enums.GameResult.PlayerBlackjack:
+                resultText.text = "Congratulations, You got Blackjack!";
+                break;
+            case Enums.GameResult.DealerBlackjack:
+                resultText.text = "Oh.. Dealer got Blackjack...";
+                break;
+            case Enums.GameResult.PlayerBust:
+                resultText.text = "Hmm..., Let's not get carried away ";
+                break;
+            case Enums.GameResult.DealerBust:
+                resultText.text = "So Luckly, Dealer were so greedy.";
+                break;
+            default:
+                resultText.text = "Let's play!";
+                break;
+        }
+
+        Debug.Log("Result: " + resultText.text);
+    }
+
     void OnHit()
     {
         Card card = game.Hit();
         Debug.Log("Hit: " + card.GetSuit() + " " + card.GetValue());
-        UpdateScore();
+        CheckResult();
 
     }
 
     void OnStay()
-    {
-        //UpdateScore();
+    {   
+        game.ChangeTurn();
+
+        hitButton.gameObject.SetActive(false);
+        stayButton.gameObject.SetActive(false);
 
         Debug.Log("Stay");
-        game.ChangeTurn();
+        while (game.GetDealerScore() < 17)
+        {
+            Card card = game.Hit();
+            Debug.Log("Dealer Hit: " + card.GetSuit() + " " + card.GetValue());
+        }
+        CheckResult();
+
+        //game.ChangeTurn();
     }
 
     public void InitializeGame()
     {
-        menuCanvas.gameObject.SetActive(false);
+        //menuCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(true);
         resultCanvas.gameObject.SetActive(false);
+
+        hitButton.gameObject.SetActive(true);
+        stayButton.gameObject.SetActive(true);
+
+        //playAgainButton.onClick.AddListener(ResetGame);
+        //exitButton.onClick.AddListener(EndGame);
+        //playingButton.onClick.AddListener(ShowResult);
+
+
     }
 
     public void ShowResult()
@@ -114,13 +237,13 @@ public class GameManager : MonoBehaviour
         inGameCanvas.gameObject.SetActive(false);
         resultCanvas.gameObject.SetActive(true);
         //coinText.text = "Coin: " + game.GetCoin();
-        
-    }   
+
+    }
 
     public void ResetGame()
     {
         game.StartGame();
-        UpdateScore();
+        CheckResult();
     }
 
 }

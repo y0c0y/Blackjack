@@ -31,7 +31,7 @@ public class Player
 
         foreach (Card card in hand)
         {
-            int cardValue = card.GetValue();
+            int cardValue = card.GetIntValue();
             score += cardValue;
             if (cardValue == (int)Enums.Value.Ace)
             {

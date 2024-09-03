@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BlackjackGame
 {
+    public Enums.GameResult _result = Enums.GameResult.None;
 
     private bool isPlayerTurn;
 
@@ -21,6 +22,8 @@ public class BlackjackGame
     public int GetPlayerScore() => player.CalculateScore();
     public int GetDealerScore() => dealer.CalculateScore();
     public bool GetIsPlayerTurn() => isPlayerTurn;
+
+    public Player GetOnTurnPlayer() => isPlayerTurn ? player : dealer;
     public Player GetPlayer() => player;
     public Player GetDealer() => dealer;
     public Deck GetDeck() => deck;
@@ -58,6 +61,7 @@ public class BlackjackGame
         Debug.Log("Dealer's first card: " + dealer.GetHand()[0].GetSuit() + " " + dealer.GetHand()[0].GetValue());
         dealer.ReceiveCard(deck.DealCard());
         Debug.Log("Dealer's second card: " + dealer.GetHand()[1].GetSuit() + " " + dealer.GetHand()[1].GetValue());
+        CheckBlackjack();
     }
 
     public Card Hit()
@@ -75,46 +79,49 @@ public class BlackjackGame
         return card;
     }
 
-    public void Stay()
+    //public void Stay()
+    //{
+    //    isPlayerTurn = false;
+    //}
+
+    public void CheckBlackjack()
     {
-        isPlayerTurn = false;
+        if (player.CalculateScore() == 21 && dealer.CalculateScore() == 21)
+        {
+            _result = Enums.GameResult.Push;
+        }
+        else if (player.CalculateScore() == 21)
+        {
+            _result = Enums.GameResult.PlayerBlackjack;
+        }
+        else if (dealer.CalculateScore() == 21)
+        {
+            _result = Enums.GameResult.DealerBlackjack;
+        }
+        else _result = Enums.GameResult.None;
     }
 
-    public Enums.GameResult CheckWinner()
+    public void CheckWinner(int playerScore ,int dealerScore)
     {
-        int playerScore = player.CalculateScore();
-        int dealerScore = dealer.CalculateScore();
-
-
         if (playerScore == dealerScore)
-        {
-            return Enums.GameResult.Push;
-        }
-        else if (playerScore == 21)
-        {
-            return Enums.GameResult.PlayerBlackjack;
-        }
-        else if (dealerScore == 21)
-        {
-            return Enums.GameResult.DealerBlackjack;
-        }
-        else if (playerScore > 21)
-        {
-            return Enums.GameResult.PlayerBust;
-        }
-        else if (dealerScore > 21)
-        {
-            return Enums.GameResult.DealerBust;
-        }
-        else if (playerScore > dealerScore)
-        {
-            return Enums.GameResult.PlayerWin;
+        { 
+            _result = Enums.GameResult.Push;
         }
         else
         {
-            return Enums.GameResult.DealerWin;
+            if (GetIsPlayerTurn())
+            {
+                if (playerScore > 21) _result = Enums.GameResult.PlayerBust;
+                else _result = Enums.GameResult.None;
+            }
+            else
+            {
+                if (dealerScore == 21) _result = Enums.GameResult.DealerBlackjack;
+                else if (dealerScore > 21) _result = Enums.GameResult.DealerBust;
+                else if (playerScore > dealerScore) _result = Enums.GameResult.PlayerWin;
+                else _result = Enums.GameResult.DealerWin;
+            }
         }
+       
     }
-
-
 }

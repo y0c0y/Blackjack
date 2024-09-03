@@ -25,13 +25,16 @@ public class Deck
     public void InitializeDeck() // Make 6 Decks
     {
         List<Card> tmp_deck = new List<Card>();
+        Enums.Value[] values = (Enums.Value[])Enum.GetValues(typeof(Enums.Value));
 
-        foreach (Enums.Suit suit in System.Enum.GetValues(typeof(Enums.Suit)))
+        foreach (Enums.Suit suit in Enum.GetValues(typeof(Enums.Suit)))
         {
-            foreach (Enums.Value value in System.Enum.GetValues(typeof(Enums.Value)))
+            int idx = (int)suit;
+            foreach (Enums.Value value in Enum.GetValues(typeof(Enums.Value)))
             {
-                Card card = new Card(suit, value);
+                Card card = new Card(suit, value, idx);
                 tmp_deck.Add(card);
+                idx++;
             }
         }
 
