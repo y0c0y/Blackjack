@@ -93,9 +93,10 @@ public class GameManager : MonoBehaviour
     public void CheckResult()
     {
         UpdateScore();
-        game.CheckWinner(game.GetPlayerScore(), game.GetDealerScore());
 
         Enums.GameResult _result = game._result;
+
+        Debug.Log("CheckResult: " + _result);
 
         resultText.text = "";
 
@@ -123,8 +124,13 @@ public class GameManager : MonoBehaviour
                 resultText.text = "So Luckly, Dealer were so greedy.";
                 break;
             default:
-                resultText.text = "Let's play!";
+                resultText.text = "";
                 break;
+        }
+
+        if(_result != Enums.GameResult.None)
+        {
+            ShowResult();
         }
 
         Debug.Log("Result: " + resultText.text);

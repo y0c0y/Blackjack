@@ -25,7 +25,6 @@ public class Deck
     public void InitializeDeck() // Make 6 Decks
     {
         List<Card> tmp_deck = new List<Card>();
-        Enums.Value[] values = (Enums.Value[])Enum.GetValues(typeof(Enums.Value));
 
         foreach (Enums.Suit suit in Enum.GetValues(typeof(Enums.Suit)))
         {
