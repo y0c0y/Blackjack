@@ -16,7 +16,7 @@ public class Card
         this.suit = suit;
         this.value = value;
         //Assets / Sprites / Cards.png
-        sourceIdx = idx;
+        this.sourceIdx = idx;
     }
 
     public int GetIntValue()

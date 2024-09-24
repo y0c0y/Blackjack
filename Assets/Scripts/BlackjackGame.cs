@@ -9,7 +9,7 @@ public class BlackjackGame
 
     public event Action<bool, int> OnCardDealt;
 
-    private bool isPlayerTurn;
+    private bool isPlayer;
 
     private Deck deck;
     private Player player;
@@ -20,13 +20,14 @@ public class BlackjackGame
         deck = new Deck();
         player = new Player();
         dealer = new Player();
+        isPlayer = true;
     }
 
     public int GetPlayerScore() => player.CalculateScore();
     public int GetDealerScore() => dealer.CalculateScore();
-    public bool GetIsPlayerTurn() => isPlayerTurn;
+    public bool GetIsPlayer() => isPlayer;
 
-    public Player GetOnTurnPlayer() => isPlayerTurn ? player : dealer;
+    public Player GetOnTurnPlayer() => isPlayer ? player : dealer;
     public Player GetPlayer() => player;
     public Player GetDealer() => dealer;
     public Deck GetDeck() => deck;
@@ -35,19 +36,18 @@ public class BlackjackGame
     {
         deck.InitializeDeck();
         deck.DeckReset();
-
-
         InGame();
     }
 
     public void ChangeTurn()
     {
-        isPlayerTurn = !isPlayerTurn;
+        isPlayer = !isPlayer;
+        Debug.Log("Turn: " + (isPlayer ? "Player" : "Dealer"));
     }
 
     public void InGame() // ResetGame() is called in InitializeGame()
     {
-        isPlayerTurn = true;
+        isPlayer = true;
 
         player.ResetHand();
         dealer.ResetHand();
@@ -57,23 +57,19 @@ public class BlackjackGame
 
     void DealInitialCards()
     {
-        // Player에게 카드 두 장 배분
-        player.ReceiveCard(deck.DealCard());
-        OnCardDealt?.Invoke(true, 0);
-        // 첫 번째 카드 이미지 설정
 
-        player.ReceiveCard(deck.DealCard());
-        OnCardDealt?.Invoke(true, 1);
-        // 두 번째 카드 이미지 설정
+       for(int j = 0; j < 2; j++)
+        {
+            Player anyone = isPlayer ? GetPlayer() : GetDealer();
+            for (int i = 0; i < 2; i++)
+            {
+                Card tmp = deck.DealCard();
+                anyone.ReceiveCard(tmp);
+                OnCardDealt?.Invoke(isPlayer, i);
+            }
 
-        // Dealer에게 카드 두 장 배분
-        dealer.ReceiveCard(deck.DealCard());
-        OnCardDealt?.Invoke(false, 0);
-        // 첫 번째 카드 이미지 설정
-
-        dealer.ReceiveCard(deck.DealCard());
-        OnCardDealt?.Invoke(false, 1);
-        // 두 번째 카드 이미지 설정
+            ChangeTurn();
+        }
 
         CheckBlackjack();
     }
@@ -81,7 +77,7 @@ public class BlackjackGame
 
     public Card Hit()
     {
-        Player tmp = isPlayerTurn ? player : dealer;
+        Player tmp = isPlayer ? player : dealer;
 
         Card card = deck.DealCard();
         if (card == null)
@@ -90,9 +86,9 @@ public class BlackjackGame
             card = deck.DealCard();
         }
         tmp.ReceiveCard(card);
-        OnCardDealt?.Invoke(isPlayerTurn, tmp.GetHand().Count - 1);
+        OnCardDealt?.Invoke(isPlayer, tmp.GetHand().Count - 1);
 
-        if (!isPlayerTurn)
+        if (!isPlayer)
         {
             CheckWinner();
         }
@@ -106,6 +102,8 @@ public class BlackjackGame
 
     public void CheckBlackjack()
     {
+
+
         if (player.CalculateScore() == 21 && dealer.CalculateScore() == 21)
         {
             _result = Enums.GameResult.Push;
@@ -113,14 +111,13 @@ public class BlackjackGame
         else if (player.CalculateScore() == 21)
         {
             _result = Enums.GameResult.PlayerBlackjack;
+            Debug.Log("Blackjack");
         }
         else if (dealer.CalculateScore() == 21)
         {
             _result = Enums.GameResult.DealerBlackjack;
         }
         else _result = Enums.GameResult.None;
-
-        Debug.Log("Result: " + _result);
     }
 
 

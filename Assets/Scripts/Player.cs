@@ -33,7 +33,7 @@ public class Player
         {
             int cardValue = card.GetIntValue();
             score += cardValue;
-            if (cardValue == (int)Enums.Value.Ace)
+            if (cardValue == 11)
             {
                 aceCount++;
             }
