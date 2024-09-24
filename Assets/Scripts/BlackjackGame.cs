@@ -36,7 +36,6 @@ public class BlackjackGame
         deck.InitializeDeck();
         deck.DeckReset();
 
-        isPlayerTurn = true;
 
         InGame();
     }
@@ -48,6 +47,8 @@ public class BlackjackGame
 
     public void InGame() // ResetGame() is called in InitializeGame()
     {
+        isPlayerTurn = true;
+
         player.ResetHand();
         dealer.ResetHand();
 
@@ -102,11 +103,6 @@ public class BlackjackGame
 
         return card;
     }
-
-    //public void Stay()
-    //{
-    //    isPlayerTurn = false;
-    //}
 
     public void CheckBlackjack()
     {

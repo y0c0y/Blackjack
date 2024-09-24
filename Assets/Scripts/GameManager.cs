@@ -31,6 +31,10 @@ public class GameManager : MonoBehaviour
     public Transform playerHand;
     public Transform dealerHand;
 
+    Vector3 playerPosition;
+    Vector3 dealerPosition;
+
+
     public Sprite[] cardSprites;
     public SpriteRenderer cardSpriteRenderer;
 
@@ -45,43 +49,6 @@ public class GameManager : MonoBehaviour
     }
 
     //Assets/Sprites/CuteCards.png
-    /*
-    public void SetCardImg(bool isPlayer, int cardIndex)
-    {
-
-        Debug.Log("SetCardImg called for " + (isPlayer ? "Player" : "Dealer") + " with cardIndex: " + cardIndex);
-        GameObject Hand = isPlayer ? playerHand.gameObject : dealerHand.gameObject;
-
-        // 카드가 나란히 배치되도록 offset 설정
-        float offsetX = 1.0f; // 카드 간의 간격 (원하는 간격으로 조정 가능)
-        Vector3 cardPosition = Hand.transform.position + new Vector3(cardIndex * offsetX, 0, 0);
-
-        // 카드 생성 및 위치 설정
-        GameObject cardInstance = Instantiate(cardPrefab, cardPosition, Quaternion.identity);
-        SpriteRenderer spriteRenderer = cardInstance.GetComponent<SpriteRenderer>();
-
-        if (spriteRenderer != null)
-        {
-            Player player = isPlayer ? game.GetPlayer() : game.GetDealer();
-            int idx = player.GetHand()[cardIndex].GetSourceIdx();
-
-            if (idx >= 0 && idx < cardSprites.Length)
-            {
-                spriteRenderer.sprite = cardSprites[idx];
-                Debug.Log("Sprite Found: " + cardSprites[idx].name);
-            }
-            else
-            {
-                Debug.LogError("Index " + idx + " is out of bounds for cardSprites array.");
-            }
-        }
-        else
-        {
-            Debug.LogError("SpriteRenderer is null!");
-        }
-
-        Canvas.ForceUpdateCanvases();
-    }*/
 
     public void SetCardImg(bool isPlayer, int cardIndex)
     {
@@ -124,8 +91,6 @@ public class GameManager : MonoBehaviour
         playerScoreText.text = "Player Score: " + game.GetPlayerScore();
         dealerScoreText.text = "Dealer Score: " + game.GetDealerScore();
     }
-
-   
 
     public void CheckResult()
     {
@@ -191,6 +156,8 @@ public class GameManager : MonoBehaviour
     {   
         game.ChangeTurn();
 
+        Debug.Log(game.GetIsPlayerTurn() ? "player" : "dealer");
+
         hitButton.gameObject.SetActive(false);
         stayButton.gameObject.SetActive(false);
 
@@ -245,6 +212,9 @@ public class GameManager : MonoBehaviour
 
         cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
 
+        playerPosition = playerHand.position;
+        dealerPosition = dealerHand.position;
+
         hitButton.onClick.AddListener(OnHit);
         stayButton.onClick.AddListener(OnStay);
 
@@ -271,8 +241,6 @@ public class GameManager : MonoBehaviour
 
         ClearHands(playerHand);
         ClearHands(dealerHand);
-        Vector3 playerPosition = new Vector3(-3, -1.5f, -0.04f);
-        Vector3 dealerPosition = new Vector3(-3, 0.9f, 0);
 
         ResetTransform(playerHand, playerPosition);
         ResetTransform(dealerHand, dealerPosition);
