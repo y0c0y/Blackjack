@@ -17,13 +17,15 @@ public class GameManager : MonoBehaviour
     public Button hitButton;
     public Button stayButton;
 
+    public Button startButton;
+    public Button stopButton;
+    public Button playingButton;
+    public Button restartButton;
+    public Button exitButton;
+
     public Canvas resultCanvas;
     public Text resultText;
     public Text coinText;
-
-    public Button playAgainButton;
-    public Button exitButton;
-    public Button playingButton;
 
     public GameObject cardPrefab;
     public Transform playerHand;
@@ -43,7 +45,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Assets/Sprites/CuteCards.png
-
+    /*
     public void SetCardImg(bool isPlayer, int cardIndex)
     {
 
@@ -79,8 +81,43 @@ public class GameManager : MonoBehaviour
         }
 
         Canvas.ForceUpdateCanvases();
-    }
+    }*/
 
+    public void SetCardImg(bool isPlayer, int cardIndex)
+    {
+        Debug.Log("SetCardImg called for " + (isPlayer ? "Player" : "Dealer") + " with cardIndex: " + cardIndex);
+        GameObject Hand = isPlayer ? playerHand.gameObject : dealerHand.gameObject;
+
+        // 카드가 나란히 배치되도록 offset 설정
+        float offsetX = 1.0f; // 카드 간의 간격 (원하는 간격으로 조정 가능)
+        Vector3 cardPosition = Hand.transform.position + new Vector3(cardIndex * offsetX, 0, 0);
+
+        // 카드 생성 및 위치 설정 (Parenting the card to playerHand or dealerHand)
+        GameObject cardInstance = Instantiate(cardPrefab, cardPosition, Quaternion.identity, Hand.transform);
+        SpriteRenderer spriteRenderer = cardInstance.GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+        {
+            Player player = isPlayer ? game.GetPlayer() : game.GetDealer();
+            int idx = player.GetHand()[cardIndex].GetSourceIdx();
+
+            if (idx >= 0 && idx < cardSprites.Length)
+            {
+                spriteRenderer.sprite = cardSprites[idx];
+                Debug.Log("Sprite Found: " + cardSprites[idx].name);
+            }
+            else
+            {
+                Debug.LogError("Index " + idx + " is out of bounds for cardSprites array.");
+            }
+        }
+        else
+        {
+            Debug.LogError("SpriteRenderer is null!");
+        }
+
+        Canvas.ForceUpdateCanvases();
+    }
 
     public void UpdateScore()
     {
@@ -92,7 +129,6 @@ public class GameManager : MonoBehaviour
 
     public void CheckResult()
     {
-        UpdateScore();
 
         Enums.GameResult _result = game._result;
 
@@ -142,7 +178,12 @@ public class GameManager : MonoBehaviour
 
         Card card = game.Hit();
         Debug.Log("Hit: " + card.GetSuit() + " " + card.GetValue());
-        CheckResult();
+        UpdateScore();
+
+        if(game.GetPlayerScore() > 21)
+        {
+            CheckResult();
+        }
 
     }
 
@@ -154,19 +195,48 @@ public class GameManager : MonoBehaviour
         stayButton.gameObject.SetActive(false);
 
         Debug.Log("Stay");
+
+        OnDealerTurn();
+        UpdateScore();
+        CheckResult();
+
+
+    }
+
+    public void OnDoubleDown()
+    {
+        Debug.Log("Double Down");
+    }
+
+    public void OnSurrender()
+    {
+        Debug.Log("Surrender");
+    }
+
+    public void OnInsurance()
+    {
+        Debug.Log("Insurance");
+    }
+
+    public void OnSplit()
+    {
+        Debug.Log("Split");
+    }
+
+    public void OnDealerTurn()
+    {
+        Debug.Log("Dealer Turn");
+
         while (game.GetDealerScore() < 17)
         {
             Card card = game.Hit();
             Debug.Log("Dealer Hit: " + card.GetSuit() + " " + card.GetValue());
         }
-        CheckResult();
-
-        //game.ChangeTurn();
     }
 
     public void InitializeGame()
     {
-        //menuCanvas.gameObject.SetActive(false);
+        menuCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(true);
         resultCanvas.gameObject.SetActive(false);
 
@@ -178,8 +248,7 @@ public class GameManager : MonoBehaviour
         hitButton.onClick.AddListener(OnHit);
         stayButton.onClick.AddListener(OnStay);
 
-
-        //playAgainButton.onClick.AddListener(ResetGame);
+        restartButton.onClick.AddListener(RestartGame);
         //exitButton.onClick.AddListener(EndGame);
         //playingButton.onClick.AddListener(ShowResult);
 
@@ -196,6 +265,40 @@ public class GameManager : MonoBehaviour
     {
         resultCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(true);
+
+        hitButton.gameObject.SetActive(true);
+        stayButton.gameObject.SetActive(true);
+
+        ClearHands(playerHand);
+        ClearHands(dealerHand);
+        Vector3 playerPosition = new Vector3(-3, -1.5f, -0.04f);
+        Vector3 dealerPosition = new Vector3(-3, 0.9f, 0);
+
+        ResetTransform(playerHand, playerPosition);
+        ResetTransform(dealerHand, dealerPosition);
+
+
+        game.InGame();
+        game.OnCardDealt += SetCardImg;
+
+        UpdateScore();
+    }
+
+    private void ResetTransform(Transform transformToReset, Vector3 initialPosition)
+    {
+        // Assuming the initial state is position = (0, 0, 0), rotation = (0, 0, 0), scale = (1, 1, 1)
+        transformToReset.localPosition = initialPosition;   // Resets position to (0, 0, 0)
+        transformToReset.localRotation = Quaternion.identity; // Resets rotation to (0, 0, 0)
+        transformToReset.localScale = Vector3.one; // Resets scale to (1, 1, 1)
+    }
+
+    private void ClearHands(Transform handTransform)
+    {
+        // Loop through each child of the hand transform (cards) and destroy them
+        for (int i = handTransform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(handTransform.GetChild(i).gameObject);
+        }
     }
 
     public void EndGame()
@@ -206,10 +309,6 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void ResetGame()
-    {
-        game.StartGame();
-        CheckResult();
-    }
+    
 
 }
