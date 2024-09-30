@@ -93,9 +93,11 @@ public class GameManager : MonoBehaviour
     public void OnDealerTurn()
     {
         bool checkwinner = false;
-        while (game.GetDealerScore() < 17)
+        int dealerScore = game.GetDealerScore();
+        while (dealerScore < 17)
         {
             Card card = game.Hit();
+            dealerScore = game.GetDealerScore();
             checkwinner = true;
         }
 
@@ -115,7 +117,7 @@ public class GameManager : MonoBehaviour
         cardManager.ClearHands(cardManager.dealerHand);
 
         game.InGame();
-        game.OnCardDealt += SetCardImg;
+        //game.OnCardDealt += SetCardImg;
 
         UpdateScore();
         CheckResult();

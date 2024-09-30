@@ -113,10 +113,6 @@ public class BlackjackGame
             _result = Enums.GameResult.PlayerBlackjack;
             Debug.Log("Blackjack");
         }
-        else if (dealer.CalculateScore() == 21)
-        {
-            _result = Enums.GameResult.DealerBlackjack;
-        }
         else _result = Enums.GameResult.None;
     }
 
