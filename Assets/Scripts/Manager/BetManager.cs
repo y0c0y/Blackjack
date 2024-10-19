@@ -12,8 +12,29 @@ public class BetManager : MonoBehaviour
     private int playerChips = 0;  // Set initial chips
     private int initialChips = 200;
 
+    public int CurrentBet { get => currentBet; }
+    public int PlayerChips { get => playerChips; }
+    //public int InitialChips { get => initialChips; }
+    public void SetPlayerChips(int chips) => playerChips = chips;
+
+    //public void SetInitialChips(int chips) => initialChips = chips;
+    public void SetCurrentBet(int bet) => currentBet = bet;
+
+    private GameManager gameManager;
+
     void Start()
     {
+
+        currentBet = initialChips;
+
+
+        gameManager = FindObjectOfType<GameManager>();
+        if (gameManager == null)
+        {
+            Debug.LogError("No GameManager found in the scene!");
+            return;
+        }
+
         UpdateChipUI();
         UpdateBetUI();
     }

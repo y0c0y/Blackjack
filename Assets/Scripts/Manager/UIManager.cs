@@ -18,53 +18,85 @@ public class UIManager : MonoBehaviour
     public Text ownCoinText;
 
     public BetManager betManager;
+    public InputManager inputManager;
 
-    private void Start()
+    private GameManager gameManager;
+
+    void Start()
     {
-        ShowMenu();
+        inputManager = FindObjectOfType<InputManager>();
+        betManager = FindObjectOfType<BetManager>();
+        gameManager = FindObjectOfType<GameManager>();
+
+        if (inputManager == null || betManager == null || gameManager == null)
+        {
+            Debug.LogError("No GameManager found in the scene!");
+            return;
+        }
+
     }
 
     public void ShowMenu()
     {
         menuCanvas.gameObject.SetActive(true);
-        betCanvas.gameObject.SetActive(false);
+        commonCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(false);
         resultCanvas.gameObject.SetActive(false);
-        commonCanvas.gameObject.SetActive(false);
+        betCanvas.gameObject.SetActive(false);
+
+        inputManager.ChangeStartNExit(true);
+        inputManager.ChangeBetButtons(false);
+        inputManager.ChangeHitNStay(false);
+        inputManager.ChangeRestartNHome(false);
+   
     }
 
     public void ShowBetting()
     {
         menuCanvas.gameObject.SetActive(false);
-        commonCanvas.gameObject.SetActive(true);
 
+        commonCanvas.gameObject.SetActive(true);
         playerScoreText.gameObject.SetActive(false);
         dealerScoreText.gameObject.SetActive(false);
 
         betCanvas.gameObject.SetActive(true);
+        resultCanvas.gameObject.SetActive(false);
+
+
+        inputManager.ChangeStartNExit(false);
+        inputManager.ChangeHitNStay(false);
+        inputManager.ChangeRestartNHome(false);
+        inputManager.ChangeBetButtons(true);
+
+        betManager.SetPlayerChips(gameManager.game.GetPlayer().GetChips());
+
     }
 
     public void ShowInGame()
     {
-        menuCanvas.gameObject.SetActive(false);
+        betCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(true);
-
         playerScoreText.gameObject.SetActive(true);
         dealerScoreText.gameObject.SetActive(true);
 
-        betCanvas.gameObject.SetActive(false);
+        inputManager.ChangeBetButtons(false);
+        inputManager.ChangeHitNStay(true);
     }
 
     public void ConfirmBetAndStartGame()
     {
         betManager.ConfirmBet();
-        ShowInGame(); // Proceed to in-game Canvas after bet is confirmed
+        ShowInGame();
+        gameManager.StartGame();
     }
 
     public void ShowResult()
     {
         inGameCanvas.gameObject.SetActive(false);
         resultCanvas.gameObject.SetActive(true);
+
+        inputManager.ChangeHitNStay(false);
+        inputManager.ChangeRestartNHome(true);
     }
 
     public void UpdateScore(int playerScore, int dealerScore)

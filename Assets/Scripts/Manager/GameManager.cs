@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
 
-    private BlackjackGame game;
+    public BlackjackGame game;
     public UIManager uiManager;
     public InputManager inputManager;
     public CardManager cardManager;
@@ -16,24 +16,11 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        uiManager.ShowMenu();
-        inputManager.ChangeBetButtons(false);
-        inputManager.ChangeHitNStay(false);
-        inputManager.ChangeRestartNExit(false);
-        inputManager.ChangeStartNExit(true);
-    }
-
-    public void StartGame()
-    {
+        Debug.Log("Start");
         game = new BlackjackGame();
         game.OnCardDealt += SetCardImg;
-        game.StartGame();
-        
-        UpdateScore();
-        CheckResult();
-
+        uiManager.ShowMenu();
     }
-
 
     public IEnumerator Dealay(float time)
     {
@@ -130,8 +117,21 @@ public class GameManager : MonoBehaviour
         Debug.Log("Split");
     }
 
+    public void HandClear()
+    {
+        cardManager.ClearHands(cardManager.playerHand);
+        cardManager.ClearHands(cardManager.dealerHand);
+    }
+
+    public void OnMenu()
+    {
+        HandClear();
+        uiManager.ShowMenu();
+    }
+
     public void OnBet()
     {
+       HandClear();
         uiManager.ShowBetting();
     }
 
@@ -165,11 +165,10 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void RestartGame()
+    public void StartGame()
     {
         uiManager.ShowInGame();
-        cardManager.ClearHands(cardManager.playerHand);
-        cardManager.ClearHands(cardManager.dealerHand);
+
         openDealerCard = false;
         game.InGame();
 

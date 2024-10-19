@@ -16,6 +16,7 @@ public class Player
         chips = 1000;
         bet = 0;
     }
+
     public List<Card> GetHand() => hand;
     public int GetChips() => chips;
     public int GetBet() => bet;

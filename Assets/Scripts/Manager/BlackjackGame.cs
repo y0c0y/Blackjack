@@ -21,6 +21,11 @@ public class BlackjackGame
         player = new Player();
         dealer = new Player();
         isPlayer = true;
+
+        deck.InitializeDeck();
+        deck.DeckReset();
+
+        Debug.Log("Game Data Make");
     }
 
     public int GetPlayerScore() => player.CalculateScore();
@@ -34,12 +39,6 @@ public class BlackjackGame
     public Enums.GameResult GetResult() => _result;
     public void SetResult(Enums.GameResult result) => _result = result;
 
-    public void StartGame() // StartGame() is called in InitializeGame()
-    {
-        deck.InitializeDeck();
-        deck.DeckReset();
-        InGame();
-    }
 
     public void ChangeTurn()
     {
