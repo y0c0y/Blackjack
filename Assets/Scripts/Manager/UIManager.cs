@@ -9,26 +9,56 @@ public class UIManager : MonoBehaviour
     public Canvas inGameCanvas;
     public Canvas resultCanvas;
     public Canvas commonCanvas;
+    public Canvas betCanvas;
 
     public Text playerScoreText;
     public Text dealerScoreText;
     public Text resultText;
-    public Text coinText;
+    public Text resultCoinText;
+    public Text ownCoinText;
+
+    public BetManager betManager;
+
+    private void Start()
+    {
+        ShowMenu();
+    }
 
     public void ShowMenu()
     {
         menuCanvas.gameObject.SetActive(true);
+        betCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(false);
         resultCanvas.gameObject.SetActive(false);
         commonCanvas.gameObject.SetActive(false);
+    }
+
+    public void ShowBetting()
+    {
+        menuCanvas.gameObject.SetActive(false);
+        commonCanvas.gameObject.SetActive(true);
+
+        playerScoreText.gameObject.SetActive(false);
+        dealerScoreText.gameObject.SetActive(false);
+
+        betCanvas.gameObject.SetActive(true);
     }
 
     public void ShowInGame()
     {
         menuCanvas.gameObject.SetActive(false);
         inGameCanvas.gameObject.SetActive(true);
-        commonCanvas.gameObject.SetActive(true);
-        resultCanvas.gameObject.SetActive(false);
+
+        playerScoreText.gameObject.SetActive(true);
+        dealerScoreText.gameObject.SetActive(true);
+
+        betCanvas.gameObject.SetActive(false);
+    }
+
+    public void ConfirmBetAndStartGame()
+    {
+        betManager.ConfirmBet();
+        ShowInGame(); // Proceed to in-game Canvas after bet is confirmed
     }
 
     public void ShowResult()

@@ -7,12 +7,22 @@ public class Player
 {
     private List<Card> hand;
     private Transform handTransforms;
+    private int chips;
+    private int bet;
 
     public Player()
     {
         hand = new List<Card>();
+        chips = 1000;
+        bet = 0;
     }
     public List<Card> GetHand() => hand;
+    public int GetChips() => chips;
+    public int GetBet() => bet;
+
+    public void SetChips(int chips) => this.chips = chips;
+    public void SetBet(int bet) => this.bet = bet;
+
 
     public void ResetHand()
     {

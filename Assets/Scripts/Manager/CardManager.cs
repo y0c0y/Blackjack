@@ -15,11 +15,14 @@ public class CardManager : MonoBehaviour
     void Start()
     {
         cardSprites = Resources.LoadAll<Sprite>("Sprites/CuteCards");
+
     }
+    
 
     public void SetCardImg(bool isPlayer, int cardIndex, int cardSpriteIndex)
     {
         GameObject hand = isPlayer ? playerHand.gameObject : dealerHand.gameObject;
+
         float offsetX = 1.0f;
         Vector3 cardPosition = hand.transform.position + new Vector3(cardIndex * offsetX, 0, 0);
 
