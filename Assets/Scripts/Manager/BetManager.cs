@@ -9,7 +9,7 @@ public class BetManager : MonoBehaviour
     private int playerChips = 0;
     private int initialChips = 200;
 
-    public GameManager gameManager;
+    public BlackjackManager blackjackManager;
     public UIManager uiManager;
 
     public int GetCurrentBet() => currentBet;
@@ -23,21 +23,19 @@ public class BetManager : MonoBehaviour
     {
         CacheManagers();
         if (ManagersNotFound()) return;
-
-        InitBetting();
     }
 
     private void CacheManagers()
     {
-        gameManager = FindObjectOfType<GameManager>();
+        blackjackManager = FindObjectOfType<BlackjackManager>();
         uiManager = FindObjectOfType<UIManager>();
     }
 
     private bool ManagersNotFound()
     {
-        if (gameManager == null || uiManager == null)
+        if (blackjackManager == null || uiManager == null)
         {
-            Debug.LogError("GameManager or UIManager is missing in the scene!");
+            Debug.LogError(" blackjackGameManager or UIManager is missing in the scene!");
             return true;
         }
         return false;
@@ -45,7 +43,9 @@ public class BetManager : MonoBehaviour
 
     public void InitBetting()
     {
-        playerChips = gameManager.game.GetPlayer().GetChips();
+        Debug.Log("Init betting");
+        playerChips = blackjackManager.game.GetPlayer().GetChips();
+        Debug.Log("Player chips: " + playerChips);
         currentBet = initialChips;
 
         UpdateUI();
@@ -55,6 +55,18 @@ public class BetManager : MonoBehaviour
     public void LeftArrow() => AdjustBet(-10);
     public void UpArrow() => AdjustBet(100);
     public void DownArrow() => AdjustBet(-100);
+
+    public void MinChips()
+    {
+        currentBet = initialChips;
+        UpdateUI();
+    }
+
+    public void MaxChips()
+    {
+        currentBet = playerChips;
+        UpdateUI();
+    }
 
     private void AdjustBet(int changeAmount)
     {
@@ -77,8 +89,8 @@ public class BetManager : MonoBehaviour
         if (currentBet <= playerChips)
         {
             playerChips -= currentBet;
-            gameManager.game.GetPlayer().SetChips(playerChips);
-            gameManager.game.GetPlayer().SetBet(currentBet);
+            blackjackManager.game.GetPlayer().SetChips(playerChips);
+            blackjackManager.game.GetPlayer().SetBet(currentBet);
 
             UpdateUI();
         }

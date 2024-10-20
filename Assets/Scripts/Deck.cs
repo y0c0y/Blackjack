@@ -16,25 +16,20 @@ public class Deck
         isUsing = false;
     }
 
-    // Getters and utility methods
     public int GetCardIdx() => cardIdx;
     public List<Card> GetCards() => cards;
     public void ChangeIsUsing() => this.isUsing = !isUsing;
     public bool GetIsUsing() => isUsing;
 
-    // Initialize the deck with 6 full decks (312 cards)
     public void InitializeDeck()
     {
         List<Card> singleDeck = BuildSingleDeck();
-
-        // Add 6 decks to the cards list
         for (int i = 0; i < 6; i++)
         {
             cards.AddRange(singleDeck);
         }
     }
 
-    // Helper method to build a single deck (52 cards)
     private List<Card> BuildSingleDeck()
     {
         List<Card> singleDeck = new List<Card>();
@@ -53,7 +48,6 @@ public class Deck
         return singleDeck;
     }
 
-    // Reset the deck index and shuffle
     public void DeckReset()
     {
         cardIdx = 0;
@@ -69,12 +63,10 @@ public class Deck
 
         for (int i = n - 1; i > 0; i--)
         {
-            int j = rand.Next(i + 1); // Generate random index
-            SwapCards(i, j); // Swap card positions
+            int j = rand.Next(i + 1);
+            SwapCards(i, j);
         }
     }
-
-    // Helper method to swap two cards in the deck
     private void SwapCards(int i, int j)
     {
         Card temp = cards[i];
@@ -82,7 +74,6 @@ public class Deck
         cards[j] = temp;
     }
 
-    // Deal a card from the deck
     public Card DealCard()
     {
         if (cardIdx < cards.Count)

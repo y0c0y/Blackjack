@@ -20,8 +20,6 @@ public class BlackjackGame
 
         deck.InitializeDeck();
         deck.DeckReset();
-
-        Debug.Assert(deck.GetCards().Count == 312, "Deck does not contain 312 cards");
     }
 
     public int GetPlayerScore() => player.CalculateScore();
@@ -48,7 +46,6 @@ public class BlackjackGame
         CheckBlackjack();
     }
 
-    // Reset the game and hands
     private void ResetGame()
     {
         isPlayer = true;
@@ -56,7 +53,6 @@ public class BlackjackGame
         dealer.ResetHand();
     }
 
-    // Deal the initial four cards to player and dealer alternately
     private void DealInitialCards()
     {
         for (int i = 0; i < 4; i++)

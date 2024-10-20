@@ -21,9 +21,13 @@ public class UIManager : MonoBehaviour
 
     public Text notice;
 
+    public GameObject bettingChips;
+    public GameObject playerOwnChips;
+
+
     public BetManager betManager;
     public InputManager inputManager;
-    public GameManager gameManager;
+    public BlackjackManager blackjackManager;
 
     private bool canPlay = true;
 
@@ -32,19 +36,28 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        inputManager = FindObjectOfType<InputManager>();
-        betManager = FindObjectOfType<BetManager>();
-        gameManager = FindObjectOfType<GameManager>();
-
-        if (inputManager == null || betManager == null || gameManager == null)
-        {
-            Debug.LogError("No GameManager found in the scene!");
-            return;
-        }
-
+        CacheManagers();
+        if (ManagersNotFound()) return;
     }
 
-    public void ShowMenu()
+    private void CacheManagers()
+    {
+        inputManager = FindObjectOfType<InputManager>();
+        betManager = FindObjectOfType<BetManager>();
+        blackjackManager = FindObjectOfType<BlackjackManager>();
+    }
+
+    private bool ManagersNotFound()
+    {
+        if (inputManager == null || betManager == null || blackjackManager == null)
+        {
+            Debug.LogError("No GameManager found in the scene!");
+            return true;
+        }
+        return false;
+    }
+
+    public void ShowLobby()
     {
         SetActiveCanvases(true, false, false, false, false);
         UpdateInputManagerStates(true, false, false, false);
@@ -53,29 +66,30 @@ public class UIManager : MonoBehaviour
     public void ShowBetting()
     {
 
-        SetActiveCanvases(false, true, false, false);
-        //SetBettingTextActive(true);
+        SetActiveCanvases(false, true, false, false, true);
+        SetBettingTextActive(true);
         SetInGameTextActive(false);
         UpdateInputManagerStates(false, true, false, false);
     }
 
     public void ShowInGame()
     {
-        SetActiveCanvases(false, false, true, false);
+        SetActiveCanvases(false, false, true, false, true);
         SetInGameTextActive(true);
         UpdateInputManagerStates(false, false, true, false);
     }
 
     public void ShowResult()
     {
-        SetActiveCanvases(false, false, false, true);
+        SetActiveCanvases(false, false, false, true, true);
+        SetBettingTextActive(false);
         UpdateInputManagerStates(false, false, false, true);
        
     }
 
-    private void SetActiveCanvases(bool menu, bool bet, bool inGame, bool result,  bool common = true)
+    private void SetActiveCanvases(bool lobby, bool bet, bool inGame, bool result,  bool common)
     {
-        menuCanvas.gameObject.SetActive(menu);
+        menuCanvas.gameObject.SetActive(lobby);
         commonCanvas.gameObject.SetActive(common);
         betCanvas.gameObject.SetActive(bet);
         inGameCanvas.gameObject.SetActive(inGame);
@@ -99,8 +113,8 @@ public class UIManager : MonoBehaviour
 
     private void SetBettingTextActive(bool isActive)
     {
-        betAmountText.gameObject.SetActive(isActive);
-        chipText.gameObject.SetActive(isActive);
+        bettingChips.gameObject.SetActive(isActive);
+        playerOwnChips.gameObject.SetActive(isActive);
     }
 
     private void SetInGameTextActive(bool isActive)
@@ -114,7 +128,7 @@ public class UIManager : MonoBehaviour
     {
         betManager.ConfirmBet();
         ShowInGame();
-        gameManager.StartGame();
+        blackjackManager.StartRound();
     }
 
 
@@ -142,7 +156,7 @@ public class UIManager : MonoBehaviour
         int payout = CalculatePayout(_result, bet);
         string resultMessage = GenerateResultMessage(_result, bet, payout, playerChips);
 
-        gameManager.game.GetPlayer().SetChips(playerChips + payout);
+        blackjackManager.game.GetPlayer().SetChips(playerChips + payout);
         resultText.text = resultMessage;
     }
 
@@ -164,13 +178,13 @@ public class UIManager : MonoBehaviour
     {
         string message = _result switch
         {
-            Enums.GameResult.PlayerWin => $"You win!!!\n You got {payout} coins!",
-            Enums.GameResult.DealerWin => GenerateLossMessage(bet, playerChips, payout, "You lose.\n You lost "),
+            Enums.GameResult.PlayerWin => $"You win!!!\nYou got {payout} coins!",
+            Enums.GameResult.DealerWin => GenerateLossMessage(bet, playerChips, payout, "You lose."),
             Enums.GameResult.Push => "Push.\n No loss, no gain.",
-            Enums.GameResult.PlayerBlackjack => $"Congratulations, You got Blackjack!\n You got {payout} coins!",
-            Enums.GameResult.DealerBlackjack => GenerateLossMessage(bet, playerChips, payout, "Oh.. Dealer got Blackjack..."),
-            Enums.GameResult.PlayerBust => GenerateLossMessage(bet, playerChips, payout, "Hmm..., Let's not get carried away.\n You lost "),
-            Enums.GameResult.DealerBust => $"So lucky, the Dealer was too greedy.\n You got {payout} coins!",
+            Enums.GameResult.PlayerBlackjack => $"Congratulations\n You got Blackjack!\nYou got {payout} coins!",
+            Enums.GameResult.DealerBlackjack => GenerateLossMessage(bet, playerChips, payout, "Dealer got Blackjack."),
+            Enums.GameResult.PlayerBust => GenerateLossMessage(bet, playerChips, payout, "Let's not get carried away."),
+            Enums.GameResult.DealerBust => $"So lucky.\nThe Dealer was too greedy.\nYou got {payout} coins!",
             _ => ""
         };
 
@@ -179,7 +193,7 @@ public class UIManager : MonoBehaviour
 
     private string GenerateLossMessage(int bet, int playerChips, int payout ,string baseMessage)
     {
-        string message = baseMessage + bet + " coins...";
+        string message = baseMessage + "\nYou lost " + bet + " coins...";
         if (playerChips + payout < betManager.GetInitialChips())
         {
             message += "\nYou can't bet anymore!!";

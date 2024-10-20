@@ -18,7 +18,11 @@ public class InputManager : MonoBehaviour
     public Button leftArrow;
     public Button rightArrow;
 
-    public GameManager gameManager;
+    public Button minButton;
+    public Button maxButton;
+
+    public GameManager gameDirector;
+    public BlackjackManager blackjackManager;
     public BetManager betManager;
     public UIManager uiManager;
 
@@ -38,16 +42,17 @@ public class InputManager : MonoBehaviour
 
     private void CacheManagers()
     {
-        gameManager = FindObjectOfType<GameManager>();
+        blackjackManager = FindObjectOfType<BlackjackManager>();
+        gameDirector = FindObjectOfType<GameManager>();
         betManager = FindObjectOfType<BetManager>();
         uiManager = FindObjectOfType<UIManager>();
     }
 
     private bool ManagersNotFound()
     {
-        if (gameManager == null || betManager == null || uiManager == null)
+        if (gameDirector == null || betManager == null || uiManager == null)
         {
-            Debug.LogError("GameManager, BetManager, or UIManager is not found in the scene!");
+            Debug.LogError("gameDirector, BetManager, or UIManager is not found in the scene!");
             return true;
         }
         return false;
@@ -106,18 +111,20 @@ public class InputManager : MonoBehaviour
         AddListener(downArrow, () => betManager.DownArrow());
         AddListener(leftArrow, () => betManager.LeftArrow());
         AddListener(rightArrow, () => betManager.RightArrow());
+        AddListener(minButton, () => betManager.MinChips());
+        AddListener(maxButton, () => betManager.MaxChips());
 
         // In-game buttons
-        AddListener(hitButton, () => gameManager.OnHit());
-        AddListener(stayButton, () => gameManager.OnStay());
+        AddListener(hitButton, () => blackjackManager.OnHit());
+        AddListener(stayButton, () => blackjackManager.OnStay());
 
         // Menu buttons
-        AddListener(startButton, () => gameManager.OnBet());
-        AddListener(exitButton, () => gameManager.ExitGame());
+        AddListener(startButton, () => gameDirector.StartSinglePlayerGame());
+        AddListener(exitButton, () => gameDirector.ExitGame());
 
         // Restart/Home buttons
-        AddListener(restartButton, () => gameManager.OnBet());
-        AddListener(homeButton, () => gameManager.OnMenu());
+        AddListener(restartButton, () => blackjackManager.OnBet());
+        AddListener(homeButton, () => uiManager.ShowLobby());
     }
 
     private void AddListener(Button button, UnityEngine.Events.UnityAction action)
