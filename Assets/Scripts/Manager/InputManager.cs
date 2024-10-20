@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-
 public class InputManager : MonoBehaviour
 {
     public Button hitButton;
@@ -22,104 +20,113 @@ public class InputManager : MonoBehaviour
 
     public GameManager gameManager;
     public BetManager betManager;
-    public UIManager uiManager;    
+    public UIManager uiManager;
 
     void Start()
     {
-        gameManager = FindObjectOfType<GameManager>();
-        betManager = FindObjectOfType<BetManager>();
-        uiManager = FindObjectOfType<UIManager>();
-
-        if (gameManager == null || betManager == null || uiManager == null)
-        {
-            Debug.LogError("No GameManager found in the scene!");
-            return;
-        }
+        CacheManagers();
+        if (ManagersNotFound()) return;
 
         InitOnClick();
-
     }
 
     void Update()
     {
-
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            confirmBetButton.onClick.Invoke();
-        }
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            upArrow.onClick.Invoke();
-        }
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            downArrow.onClick.Invoke();
-        }
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            leftArrow.onClick.Invoke();
-        }
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            rightArrow.onClick.Invoke();
-        }
-
+        CheckArrowKeys();
         UpdateButtonStates();
     }
 
-    public void ChangeBetButtons(bool tmp)
+    private void CacheManagers()
     {
-        confirmBetButton.gameObject.SetActive(tmp);
-        upArrow.gameObject.SetActive(tmp);
-        downArrow.gameObject.SetActive(tmp);
-        leftArrow.gameObject.SetActive(tmp);
-        rightArrow.gameObject.SetActive(tmp);
-
+        gameManager = FindObjectOfType<GameManager>();
+        betManager = FindObjectOfType<BetManager>();
+        uiManager = FindObjectOfType<UIManager>();
     }
 
-    public void ChangeHitNStay(bool tmp)
+    private bool ManagersNotFound()
     {
-        hitButton.gameObject.SetActive(tmp);
-        stayButton.gameObject.SetActive(tmp);
+        if (gameManager == null || betManager == null || uiManager == null)
+        {
+            Debug.LogError("GameManager, BetManager, or UIManager is not found in the scene!");
+            return true;
+        }
+        return false;
     }
 
-    public void ChangeStartNExit(bool tmp)
+    private void CheckArrowKeys()
     {
-        startButton.gameObject.SetActive(tmp);
-        exitButton.gameObject.SetActive(tmp);
+        if (Input.GetKeyDown(KeyCode.Return))
+            confirmBetButton.onClick.Invoke();
+
+        CheckKey(KeyCode.UpArrow, upArrow);
+        CheckKey(KeyCode.DownArrow, downArrow);
+        CheckKey(KeyCode.LeftArrow, leftArrow);
+        CheckKey(KeyCode.RightArrow, rightArrow);
     }
 
-    public void ChangeRestartNHome(bool tmp)
+    private void CheckKey(KeyCode key, Button button)
     {
-        restartButton.gameObject.SetActive(tmp);
-        homeButton.gameObject.SetActive(tmp);
+        if (Input.GetKeyDown(key))
+            button.onClick.Invoke();
+    }
+
+    public void ChangeBetButtons(bool isActive)
+    {
+        SetButtonGroupActive(isActive, confirmBetButton, upArrow, downArrow, leftArrow, rightArrow);
+    }
+
+    public void ChangeHitNStay(bool isActive)
+    {
+        SetButtonGroupActive(isActive, hitButton, stayButton);
+    }
+
+    public void ChangeStartNExit(bool isActive)
+    {
+        SetButtonGroupActive(isActive, startButton, exitButton);
+    }
+
+    public void ChangeRestartNHome(bool isActive)
+    {
+        SetButtonGroupActive(isActive, restartButton, homeButton);
+    }
+
+    private void SetButtonGroupActive(bool isActive, params Button[] buttons)
+    {
+        foreach (Button button in buttons)
+        {
+            button.gameObject.SetActive(isActive);
+        }
     }
 
     public void InitOnClick()
     {
-        //bet
-        confirmBetButton.onClick.AddListener(() => uiManager.ConfirmBetAndStartGame());
-        upArrow.onClick.AddListener(() => betManager.UpArrow());
-        downArrow.onClick.AddListener(() => betManager.DownArrow());
-        leftArrow.onClick.AddListener(() => betManager.LeftArrow());
-        rightArrow.onClick.AddListener(() => betManager.RightArrow());
+        // Bet buttons
+        AddListener(confirmBetButton, () => uiManager.ConfirmBetAndStartGame());
+        AddListener(upArrow, () => betManager.UpArrow());
+        AddListener(downArrow, () => betManager.DownArrow());
+        AddListener(leftArrow, () => betManager.LeftArrow());
+        AddListener(rightArrow, () => betManager.RightArrow());
 
+        // In-game buttons
+        AddListener(hitButton, () => gameManager.OnHit());
+        AddListener(stayButton, () => gameManager.OnStay());
 
-        //inGame
-        hitButton.onClick.AddListener(() => gameManager.OnHit());
-        stayButton.onClick.AddListener(() => gameManager.OnStay());
+        // Menu buttons
+        AddListener(startButton, () => gameManager.OnBet());
+        AddListener(exitButton, () => gameManager.ExitGame());
 
-
-        //menu
-        startButton.onClick.AddListener(() => gameManager.OnBet());
-        exitButton.onClick.AddListener(() => gameManager.ExitGame());
-
-
-        //restart
-        restartButton.onClick.AddListener(() => gameManager.OnBet());
-        homeButton.onClick.AddListener(() => gameManager.OnMenu());
+        // Restart/Home buttons
+        AddListener(restartButton, () => gameManager.OnBet());
+        AddListener(homeButton, () => gameManager.OnMenu());
     }
 
+    private void AddListener(Button button, UnityEngine.Events.UnityAction action)
+    {
+        if (button != null)
+        {
+            button.onClick.AddListener(action);
+        }
+    }
 
     private void UpdateButtonStates()
     {
@@ -135,9 +142,5 @@ public class InputManager : MonoBehaviour
 
         startButton.interactable = uiManager.GetCanPlay();
         restartButton.interactable = uiManager.GetCanPlay();
-
     }
-
-
 }
-

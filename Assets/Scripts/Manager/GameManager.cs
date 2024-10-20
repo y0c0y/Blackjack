@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-
     public BlackjackGame game;
     public UIManager uiManager;
     public InputManager inputManager;
@@ -16,57 +15,45 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Start");
         game = new BlackjackGame();
         game.OnCardDealt += SetCardImg;
         uiManager.ShowMenu();
     }
 
-    public IEnumerator Dealay(float time)
+    public void Delay()
     {
-        yield return new WaitForSeconds(time);
         Debug.Log("Delay");
     }
 
+    // Update the player's and dealer's scores on the UI
     public void UpdateScore()
     {
-        int playerScore= game.GetPlayerScore();
-        int dealerScoregame = 0; 
+        int playerScore = game.GetPlayerScore();
+        int dealerScore = openDealerCard ? game.GetDealerScore() : game.GetDealer().GetHand()[0].GetIntValue();
 
-        if(!openDealerCard)
-        {
-            dealerScoregame = game.GetDealer().GetHand()[0].GetIntValue();
-        }
-        else
-        {
-            dealerScoregame = game.GetDealerScore();
-        }
-
-
-        uiManager.UpdateScore(playerScore, dealerScoregame);
+        uiManager.UpdateScore(playerScore, dealerScore);
     }
 
+    // Set the appropriate card image for the player or dealer
     public void SetCardImg(bool isPlayer, int cardIndex)
     {
         Player player = isPlayer ? game.GetPlayer() : game.GetDealer();
         int spriteIndex = player.GetHand()[cardIndex].GetSourceIdx();
 
-        if(!openDealerCard && cardIndex == 1 && !isPlayer)
+        if (!openDealerCard && cardIndex == 1 && !isPlayer)
         {
-            cardManager.SetCardImg(isPlayer, cardIndex, 44);
+            cardManager.SetCardImg(isPlayer, cardIndex, 44, openDealerCard);  // Placeholder image for a hidden card
         }
         else
         {
-            cardManager.SetCardImg(isPlayer, cardIndex, spriteIndex);
+            cardManager.SetCardImg(isPlayer, cardIndex, spriteIndex, openDealerCard);
         }
 
-        Canvas.ForceUpdateCanvases();
     }
 
-
+    // Check the result of the game and update the UI
     public void CheckResult()
     {
-
         Enums.GameResult result = game.GetResult();
         uiManager.UpdateResult(result);
 
@@ -76,19 +63,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Handle player's Hit action
     public void OnHit()
     {
-
         game.Hit();
         UpdateScore();
 
-        if(game.GetPlayerScore()>21)
+        if (game.GetPlayerScore() > 21)
         {
-           OnStay();
+            OnStay();  // Automatically stay if player busts
         }
-
     }
 
+    // Handle player's Stay action
     public void OnStay()
     {
         game.ChangeTurn();
@@ -97,84 +84,70 @@ public class GameManager : MonoBehaviour
         CheckResult();
     }
 
-    public void OnDoubleDown()
-    {
-        Debug.Log("Double Down");
-    }
+    // Placeholder methods for future features
+    public void OnDoubleDown() => Debug.Log("Double Down");
+    public void OnSurrender() => Debug.Log("Surrender");
+    public void OnInsurance() => Debug.Log("Insurance");
+    public void OnSplit() => Debug.Log("Split");
 
-    public void OnSurrender()
-    {
-        Debug.Log("Surrender");
-    }
-
-    public void OnInsurance()
-    {
-        Debug.Log("Insurance");
-    }
-
-    public void OnSplit()
-    {
-        Debug.Log("Split");
-    }
-
+    // Clear both player's and dealer's hands
     public void HandClear()
     {
         cardManager.ClearHands(cardManager.playerHand);
         cardManager.ClearHands(cardManager.dealerHand);
     }
 
+    // Return to the menu screen
     public void OnMenu()
     {
         HandClear();
         uiManager.ShowMenu();
     }
 
+    // Initialize betting and show betting UI
     public void OnBet()
     {
-       HandClear();
-       betManager.InitBetting();
-       uiManager.ShowBetting();
+        HandClear();
+        betManager.InitBetting();
+        uiManager.ShowBetting();
     }
 
-    public void ExitGame() {
-        // Quit the game
+    // Exit the game
+    public void ExitGame()
+    {
         Application.Quit();
 
-        // For editor mode, this line can be used (not necessary for builds)
-        #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-        #endif
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
-
-
+    // Handle dealer's turn logic
     public void OnDealerTurn()
     {
+        // Reveal dealer's second card
         Destroy(cardManager.dealerHand.GetChild(1).gameObject);
         SetCardImg(false, 1);
+
+        // Dealer keeps hitting until reaching a score of 17 or higher
         int dealerScore = game.GetDealerScore();
         while (dealerScore < 17)
         {
             game.Hit();
             dealerScore = game.GetDealerScore();
-
         }
 
         game.CheckWinner();
-
         UpdateScore();
     }
 
-
+    // Start the game and initialize necessary variables
     public void StartGame()
     {
         uiManager.ShowInGame();
-
         openDealerCard = false;
         game.InGame();
-
         UpdateScore();
         CheckResult();
     }
-
 }

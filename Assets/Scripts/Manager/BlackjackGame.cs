@@ -1,16 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BlackjackGame
 {
     private Enums.GameResult _result = Enums.GameResult.None;
-
     public event Action<bool, int> OnCardDealt;
 
     private bool isPlayer;
-
     private Deck deck;
     private Player player;
     private Player dealer;
@@ -25,9 +21,7 @@ public class BlackjackGame
         deck.InitializeDeck();
         deck.DeckReset();
 
-        Debug.Assert(deck.GetCards().Count == 312, "Deck is not 312 cards");
-
-        Debug.Log("Game Data Make");
+        Debug.Assert(deck.GetCards().Count == 312, "Deck does not contain 312 cards");
     }
 
     public int GetPlayerScore() => player.CalculateScore();
@@ -41,77 +35,99 @@ public class BlackjackGame
     public Enums.GameResult GetResult() => _result;
     public void SetResult(Enums.GameResult result) => _result = result;
 
-
     public void ChangeTurn()
     {
         isPlayer = !isPlayer;
         Debug.Log("Turn: " + (isPlayer ? "Player" : "Dealer"));
     }
 
-    public void InGame() // ResetGame() is called in InitializeGame()
+    public void InGame()
+    {
+        ResetGame();
+        DealInitialCards();
+        CheckBlackjack();
+    }
+
+    // Reset the game and hands
+    private void ResetGame()
     {
         isPlayer = true;
-
         player.ResetHand();
         dealer.ResetHand();
+    }
 
-        for (int j = 0; j < 4; j++)
+    // Deal the initial four cards to player and dealer alternately
+    private void DealInitialCards()
+    {
+        for (int i = 0; i < 4; i++)
         {
             Hit();
             ChangeTurn();
         }
-
-        CheckBlackjack();
     }
 
 
     public void Hit()
     {
-        Player tmp = isPlayer ? player : dealer;
+        Player currentPlayer = isPlayer ? player : dealer;
+        Card card = deck.DealCard() ?? ResetAndDealCard();
 
-        Card card = deck.DealCard();
-        if (card == null)
-        {
-            deck.DeckReset();
-            card = deck.DealCard();
-        }
-        tmp.ReceiveCard(card);
-        OnCardDealt?.Invoke(isPlayer, tmp.GetHand().Count - 1);
+        currentPlayer.ReceiveCard(card);
+        OnCardDealt?.Invoke(isPlayer, currentPlayer.GetHand().Count - 1);
     }
+
+
+    private Card ResetAndDealCard()
+    {
+        deck.DeckReset();
+        return deck.DealCard();
+    }
+
 
     public void CheckBlackjack()
     {
-        if (player.CalculateScore() == 21 && dealer.CalculateScore() == 21)
+        int playerScore = player.CalculateScore();
+        int dealerScore = dealer.CalculateScore();
+
+        if (playerScore == 21 && dealerScore == 21)
         {
             _result = Enums.GameResult.Push;
         }
-        else if (player.CalculateScore() == 21)
+        else if (playerScore == 21)
         {
             _result = Enums.GameResult.PlayerBlackjack;
-            Debug.Log("Blackjack");
+            Debug.Log("Player Blackjack!");
         }
-        else _result = Enums.GameResult.None;
+        else
+        {
+            _result = Enums.GameResult.None;
+        }
     }
-
 
     public void CheckWinner()
     {
         int playerScore = GetPlayerScore();
         int dealerScore = GetDealerScore();
+
         if (playerScore > 21)
         {
             _result = Enums.GameResult.PlayerBust;
         }
+        else if (dealerScore > 21)
+        {
+            _result = Enums.GameResult.DealerBust;
+        }
         else if (playerScore == dealerScore)
         {
-            _result =  Enums.GameResult.Push;
+            _result = Enums.GameResult.Push;
+        }
+        else if (playerScore > dealerScore)
+        {
+            _result = Enums.GameResult.PlayerWin;
         }
         else
         {
-            if (dealerScore > 21) _result = Enums.GameResult.DealerBust;
-            else if (playerScore > dealerScore) _result = Enums.GameResult.PlayerWin;
-            else _result = Enums.GameResult.DealerWin;
-            
+            _result = Enums.GameResult.DealerWin;
         }
     }
 }

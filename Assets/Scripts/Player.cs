@@ -1,12 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
-public class Player 
+public class Player
 {
     private List<Card> hand;
-    private Transform handTransforms;
     private int chips;
     private int bet;
 
@@ -17,9 +15,11 @@ public class Player
         bet = 0;
     }
 
+
     public List<Card> GetHand() => hand;
     public int GetChips() => chips;
     public int GetBet() => bet;
+
 
     public void SetChips(int chips) => this.chips = chips;
     public void SetBet(int bet) => this.bet = bet;
@@ -29,6 +29,7 @@ public class Player
     {
         hand.Clear();
     }
+
 
     public void ReceiveCard(Card card)
     {
@@ -58,6 +59,4 @@ public class Player
 
         return score;
     }
-
-}   
-
+}

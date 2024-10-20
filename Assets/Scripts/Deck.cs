@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class Deck
 {
-
     private List<Card> cards;
     private int cardIdx;
     private bool isUsing;
@@ -17,14 +16,28 @@ public class Deck
         isUsing = false;
     }
 
+    // Getters and utility methods
     public int GetCardIdx() => cardIdx;
     public List<Card> GetCards() => cards;
     public void ChangeIsUsing() => this.isUsing = !isUsing;
     public bool GetIsUsing() => isUsing;
 
-    public void InitializeDeck() // Make 6 Decks
+    // Initialize the deck with 6 full decks (312 cards)
+    public void InitializeDeck()
     {
-        List<Card> tmp_deck = new List<Card>();
+        List<Card> singleDeck = BuildSingleDeck();
+
+        // Add 6 decks to the cards list
+        for (int i = 0; i < 6; i++)
+        {
+            cards.AddRange(singleDeck);
+        }
+    }
+
+    // Helper method to build a single deck (52 cards)
+    private List<Card> BuildSingleDeck()
+    {
+        List<Card> singleDeck = new List<Card>();
 
         foreach (Enums.Suit suit in Enum.GetValues(typeof(Enums.Suit)))
         {
@@ -32,55 +45,58 @@ public class Deck
             foreach (Enums.Value value in Enum.GetValues(typeof(Enums.Value)))
             {
                 Card card = new Card(suit, value, idx);
-                tmp_deck.Add(card);
+                singleDeck.Add(card);
                 idx++;
             }
         }
 
-        for (int i = 0; i < 6; i++)
-        {
-            cards.AddRange(tmp_deck);
-        }
+        return singleDeck;
     }
 
-    public void DeckReset() // Still using cards, but reset cardIdx
+    // Reset the deck index and shuffle
+    public void DeckReset()
     {
         cardIdx = 0;
         isUsing = true;
         Shuffle();
     }
 
-    void Shuffle()// Mordern Fisher-Yates shuffle
+    // Modern Fisher-Yates shuffle
+    private void Shuffle()
     {
         System.Random rand = new System.Random();
+        int n = cards.Count;
 
-        int cnt = cards.Count;
-        int last = cnt - 2;
-
-        for (int i = 0; i <= last; i++)
+        for (int i = n - 1; i > 0; i--)
         {
-            int r = rand.Next(i, cnt); //[i, cnt]
-            Card tmp = cards[i];
-            cards[i] = cards[r];
-            cards[r] = tmp;
+            int j = rand.Next(i + 1); // Generate random index
+            SwapCards(i, j); // Swap card positions
         }
     }
 
+    // Helper method to swap two cards in the deck
+    private void SwapCards(int i, int j)
+    {
+        Card temp = cards[i];
+        cards[i] = cards[j];
+        cards[j] = temp;
+    }
+
+    // Deal a card from the deck
     public Card DealCard()
     {
-        if (cards.Count * 0.8 > cardIdx)
+        if (cardIdx < cards.Count)
         {
-            Card card = cards[cardIdx];
+            Card dealtCard = cards[cardIdx];
             cardIdx++;
-            return card;
-        }
-        else if (cards.Count * 0.8 <= cardIdx && isUsing)
-        {
-            Debug.Log("Last Game!!");
 
-            Card card = cards[cardIdx];
-            cardIdx++;
-            return card;
+            // Warn if the deck is running low
+            if (cardIdx >= cards.Count * 0.8 && isUsing)
+            {
+                Debug.Log("Last Game!!");
+            }
+
+            return dealtCard;
         }
         else
         {

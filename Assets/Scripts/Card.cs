@@ -1,27 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class Card 
+public class Card
 {
     private Enums.Suit suit;
     private Enums.Value value;
     private int sourceIdx;
-    
+
     public Card(Enums.Suit suit, Enums.Value value, int idx)
     {
         this.suit = suit;
         this.value = value;
-        //Assets / Sprites / Cards.png
         this.sourceIdx = idx;
     }
 
+    // Get the numerical value of the card (e.g., Ace = 11, Face cards = 10)
     public int GetIntValue()
     {
-        switch(value)
+        switch (value)
         {
             case Enums.Value.Ace:
                 return 11;
@@ -53,8 +50,8 @@ public class Card
                 return 0;
         }
     }
-    public Enums.Value GetValue() => value;
-    public string GetSuit() =>suit.ToString();
 
+    public Enums.Value GetValue() => value;
+    public string GetSuit() => suit.ToString();
     public int GetSourceIdx() => sourceIdx;
 }
