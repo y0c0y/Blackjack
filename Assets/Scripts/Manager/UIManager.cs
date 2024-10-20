@@ -68,9 +68,6 @@ public class UIManager : MonoBehaviour
 
     public void ShowResult()
     {
-
-        Debug.Log("ShowResult: " + resultText.text);
-
         SetActiveCanvases(false, false, false, true);
         UpdateInputManagerStates(false, false, false, true);
        

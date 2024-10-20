@@ -5,91 +5,88 @@ using UnityEngine.UI;
 
 public class BetManager : MonoBehaviour
 {
-
-
     private int currentBet = 0;
-    private int playerChips = 0;  // Set initial chips
+    private int playerChips = 0;
     private int initialChips = 200;
-
-    public int GetCurrentBet() => currentBet;
-    public int GetPlayerChips() => playerChips;
-
-    public int GetInitialChips() => initialChips;
-
-    public void SetPlayerChips(int chips) => playerChips = chips;
-
-    public void SetCurrentBet(int bet) => currentBet = bet;
 
     public GameManager gameManager;
     public UIManager uiManager;
 
+    public int GetCurrentBet() => currentBet;
+    public int GetPlayerChips() => playerChips;
+    public int GetInitialChips() => initialChips;
+
+    public void SetPlayerChips(int chips) => playerChips = chips;
+    public void SetCurrentBet(int bet) => currentBet = bet;
+
     void Start()
+    {
+        CacheManagers();
+        if (ManagersNotFound()) return;
+
+        InitBetting();
+    }
+
+    private void CacheManagers()
     {
         gameManager = FindObjectOfType<GameManager>();
         uiManager = FindObjectOfType<UIManager>();
+    }
+
+    private bool ManagersNotFound()
+    {
         if (gameManager == null || uiManager == null)
         {
-            Debug.LogError("No GameManager found in the scene!");
-            return;
+            Debug.LogError("GameManager or UIManager is missing in the scene!");
+            return true;
         }
+        return false;
     }
 
     public void InitBetting()
     {
-
         playerChips = gameManager.game.GetPlayer().GetChips();
         currentBet = initialChips;
 
-        uiManager.UpdateChipUI();
-        uiManager.UpdateBetUI();
+        UpdateUI();
     }
 
-    public void RightArrow()
+    public void RightArrow() => AdjustBet(10);
+    public void LeftArrow() => AdjustBet(-10);
+    public void UpArrow() => AdjustBet(100);
+    public void DownArrow() => AdjustBet(-100);
+
+    private void AdjustBet(int changeAmount)
     {
-        if (playerChips - 10 >= currentBet) 
+        int newBet = currentBet + changeAmount;
+
+        if (IsValidBetChange(newBet))
         {
-            currentBet += 10;
+            currentBet = newBet;
             uiManager.UpdateBetUI();
         }
     }
 
-    public void LeftArrow()
+    private bool IsValidBetChange(int newBet)
     {
-        if (currentBet - 10 >= initialChips)
-        {
-            currentBet -= 10;
-            uiManager.UpdateBetUI();
-        }
-    }
-
-    public void UpArrow()
-    {
-        if (playerChips - 100 >= currentBet)
-        {
-            currentBet += 100;
-            uiManager.UpdateBetUI();
-        }
-    }
-
-    public void DownArrow()
-    {
-        if (currentBet - 100 >= initialChips)
-        {
-            currentBet -= 100;
-            uiManager.UpdateBetUI();
-        }
+        return newBet >= initialChips && newBet <= playerChips;
     }
 
     public void ConfirmBet()
     {
-        if (currentBet <= playerChips) 
+        if (currentBet <= playerChips)
         {
             playerChips -= currentBet;
-            uiManager.UpdateChipUI();
-
             gameManager.game.GetPlayer().SetChips(playerChips);
             gameManager.game.GetPlayer().SetBet(currentBet);
+
+            UpdateUI();
         }
     }
 
+    private void UpdateUI()
+    {
+        uiManager.UpdateChipUI();
+        uiManager.UpdateBetUI();
+    }
 }
