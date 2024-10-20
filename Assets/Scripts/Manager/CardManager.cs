@@ -9,7 +9,7 @@ public class CardManager : MonoBehaviour
     public Transform deckPosition;  // The starting point for cards
 
     public Sprite[] cardSprites;
-    public SpriteRenderer cardSpriteRenderer;
+    //public Sprite cardBackSprite;
 
     void Start()
     {
@@ -36,12 +36,21 @@ public class CardManager : MonoBehaviour
         {
             // Normal case: Instantiate the card at the deck position (starting point for the animation)
             GameObject cardInstance = Instantiate(cardPrefab, deckPosition.position, Quaternion.identity, hand);
-            SetCardSprite(cardInstance, cardSpriteIndex);
+            SetCardSprite(cardInstance, 44);
 
             // Start the animation to move the card from the deck position to the final position in the hand
-            StartCoroutine(AnimateCardPlacement(cardInstance, finalPosition));
+            StartCoroutine(AnimateCardPlacement(cardInstance, finalPosition, cardSpriteIndex));
         }
     }
+
+    //private void SetCardBackSprite(GameObject cardInstance)
+    //{
+    //    SpriteRenderer spriteRenderer = cardInstance.GetComponent<SpriteRenderer>();
+    //    if (spriteRenderer != null)
+    //    {
+    //        spriteRenderer.sprite = cardBackSprite;  // 카드의 뒷면을 설정
+    //    }
+    //}
 
     // Helper method to set the sprite for a card
     private void SetCardSprite(GameObject cardInstance, int cardSpriteIndex)
@@ -65,7 +74,7 @@ public class CardManager : MonoBehaviour
     }
 
     // Coroutine to animate the card placement
-    private IEnumerator AnimateCardPlacement(GameObject card, Vector3 finalPosition)
+    private IEnumerator AnimateCardPlacement(GameObject card, Vector3 finalPosition, int cardSpriteIndex)
     {
         float animationDuration = 1.0f; // Animation duration in seconds
         float elapsedTime = 0f;
@@ -83,6 +92,8 @@ public class CardManager : MonoBehaviour
 
         // Ensure the card reaches the exact final position at the end of the animation
         card.transform.position = finalPosition;
+
+        SetCardSprite(card, cardSpriteIndex);
     }
 
     // Clear all cards from the player's or dealer's hand

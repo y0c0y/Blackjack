@@ -56,7 +56,7 @@ public class BlackjackGame
         dealer.ResetHand();
     }
 
-
+    // Deal the initial four cards to player and dealer alternately
     private void DealInitialCards()
     {
         for (int i = 0; i < 4; i++)
