@@ -49,8 +49,8 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < 2; i++)  // Example: 2-player multiplayer
         {
             BlackjackManager newGame = CreateNewGameSession();
-            gameSessions.Add(newGame);  // Add the new game session to the list
-            newGame.OnBet();  // Start the game session for each player
+            gameSessions.Add(newGame); 
+            newGame.OnBet();
         }
     }
 

@@ -70,6 +70,9 @@ public class UIManager : MonoBehaviour
         SetBettingTextActive(true);
         SetInGameTextActive(false);
         UpdateInputManagerStates(false, true, false, false);
+
+        UpdateScore(0, 0);// reset score
+
     }
 
     public void ShowInGame()

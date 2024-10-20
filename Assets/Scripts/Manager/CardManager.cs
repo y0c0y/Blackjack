@@ -30,7 +30,7 @@ public class CardManager : MonoBehaviour
             GameObject cardInstance = Instantiate(cardPrefab, finalPosition, Quaternion.identity, hand);
             SetCardSprite(cardInstance, cardSpriteIndex);
         }
-        else            // Normal case: Instantiate the card at the deck position (starting point for the animation)
+        else// Normal case: Instantiate the card at the deck position (starting point for the animation)
         {
             GameObject cardInstance = Instantiate(cardPrefab, deckPosition.position, Quaternion.identity, hand);
             SetCardSprite(cardInstance, 44);

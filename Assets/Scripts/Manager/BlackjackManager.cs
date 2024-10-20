@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,8 +39,7 @@ public class BlackjackManager : MonoBehaviour
 
     public void EnterGame()
     {
-        game.OnCardDealt += SetCardImg;
-        openDealerCard = false;
+        game.OnCardDealt += StartSetCardImg;
         OnBet();
     }
 
@@ -51,31 +51,69 @@ public class BlackjackManager : MonoBehaviour
 
     public void StartRound()
     {
-        game.InGame();
+        openDealerCard = false;
+        StartCoroutine(DealInitialCardsCoroutine());
+    }
+
+    private IEnumerator DealInitialCardsCoroutine()
+    {
+        game.ResetGame();
+        for (int i = 0; i < 4; i++)
+        {
+            game.Hit(); 
+            game.ChangeTurn();
+            yield return new WaitForSeconds(1.0f); 
+        }
+
+        game.CheckBlackjack();
         UpdateScore();
         CheckResult();
     }
 
+
+
     public void UpdateScore()
     {
         int playerScore = game.GetPlayerScore();
-        int dealerScore = openDealerCard ? game.GetDealerScore() : game.GetDealer().GetHand()[0].GetIntValue();
+        int dealerScore = 0;
+
+        if (game.GetDealer().GetHand().Count > 0)
+        {
+            dealerScore = openDealerCard ? game.GetDealerScore() : game.GetDealer().GetHand()[0].GetIntValue();
+        }
+
         uiManager.UpdateScore(playerScore, dealerScore);
+    }
+
+
+    public void StartSetCardImg(bool isPlayer, int cardIndex)
+    {
+        StartCoroutine(SetCardImgCoroutine(isPlayer, cardIndex));
+    }
+
+    private IEnumerator SetCardImgCoroutine(bool isPlayer, int cardIndex)
+    {
+        SetCardImg(isPlayer, cardIndex);
+        yield return new WaitForSeconds(0.5f);
+        UpdateScore();
     }
 
     public void SetCardImg(bool isPlayer, int cardIndex)
     {
         Player player = isPlayer ? game.GetPlayer() : game.GetDealer();
         int spriteIndex = player.GetHand()[cardIndex].GetSourceIdx();
+
         if (!openDealerCard && cardIndex == 1 && !isPlayer)
         {
-            cardManager.SetCardImg(isPlayer, cardIndex, 44, openDealerCard);  // Placeholder for hidden dealer card
+            cardManager.SetCardImg(isPlayer, cardIndex, 44, openDealerCard);
         }
         else
         {
             cardManager.SetCardImg(isPlayer, cardIndex, spriteIndex, openDealerCard);
         }
+
     }
+
 
     public void CheckResult()
     {
@@ -92,7 +130,6 @@ public class BlackjackManager : MonoBehaviour
     public void OnHit()
     {
         game.Hit();
-        UpdateScore();
 
         if (game.GetPlayerScore() > 21)
         {
@@ -111,7 +148,7 @@ public class BlackjackManager : MonoBehaviour
     public void OnDealerTurn()
     {
         Destroy(cardManager.dealerHand.GetChild(1).gameObject);
-        SetCardImg(false, 1);
+        StartSetCardImg(false, 1);
         int dealerScore = game.GetDealerScore();
         while (dealerScore < 17)
         {

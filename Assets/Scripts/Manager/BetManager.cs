@@ -43,9 +43,7 @@ public class BetManager : MonoBehaviour
 
     public void InitBetting()
     {
-        Debug.Log("Init betting");
         playerChips = blackjackManager.game.GetPlayer().GetChips();
-        Debug.Log("Player chips: " + playerChips);
         currentBet = initialChips;
 
         UpdateUI();

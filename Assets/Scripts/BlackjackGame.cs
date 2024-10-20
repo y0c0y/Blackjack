@@ -33,35 +33,21 @@ public class BlackjackGame
     public Enums.GameResult GetResult() => _result;
     public void SetResult(Enums.GameResult result) => _result = result;
 
+    public void SetIsPlayer(bool isPlayer) => this.isPlayer = isPlayer;
+
+
     public void ChangeTurn()
     {
         isPlayer = !isPlayer;
-        Debug.Log("Turn: " + (isPlayer ? "Player" : "Dealer"));
     }
 
-    public void InGame()
-    {
-        ResetGame();
-        DealInitialCards();
-        CheckBlackjack();
-    }
 
-    private void ResetGame()
+    public void ResetGame()
     {
         isPlayer = true;
         player.ResetHand();
         dealer.ResetHand();
     }
-
-    private void DealInitialCards()
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            Hit();
-            ChangeTurn();
-        }
-    }
-
 
     public void Hit()
     {
@@ -92,7 +78,6 @@ public class BlackjackGame
         else if (playerScore == 21)
         {
             _result = Enums.GameResult.PlayerBlackjack;
-            Debug.Log("Player Blackjack!");
         }
         else
         {
