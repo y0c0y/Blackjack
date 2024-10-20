@@ -25,6 +25,8 @@ public class BlackjackGame
         deck.InitializeDeck();
         deck.DeckReset();
 
+        Debug.Assert(deck.GetCards().Count == 312, "Deck is not 312 cards");
+
         Debug.Log("Game Data Make");
     }
 

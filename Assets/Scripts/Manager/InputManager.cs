@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static Unity.Burst.Intrinsics.X86.Avx;
+
 
 
 public class InputManager : MonoBehaviour
@@ -14,15 +14,15 @@ public class InputManager : MonoBehaviour
     public Button restartButton;
     public Button exitButton;
 
-    public Button betButton;
+    public Button confirmBetButton;
     public Button upArrow;
     public Button downArrow;
     public Button leftArrow;
     public Button rightArrow;
 
-    private GameManager gameManager;
-    private BetManager betManager;
-    private UIManager uiManager;    
+    public GameManager gameManager;
+    public BetManager betManager;
+    public UIManager uiManager;    
 
     void Start()
     {
@@ -40,9 +40,36 @@ public class InputManager : MonoBehaviour
 
     }
 
+    void Update()
+    {
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            confirmBetButton.onClick.Invoke();
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            upArrow.onClick.Invoke();
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            downArrow.onClick.Invoke();
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            leftArrow.onClick.Invoke();
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            rightArrow.onClick.Invoke();
+        }
+
+        UpdateButtonStates();
+    }
+
     public void ChangeBetButtons(bool tmp)
     {
-        betButton.gameObject.SetActive(tmp);
+        confirmBetButton.gameObject.SetActive(tmp);
         upArrow.gameObject.SetActive(tmp);
         downArrow.gameObject.SetActive(tmp);
         leftArrow.gameObject.SetActive(tmp);
@@ -60,8 +87,6 @@ public class InputManager : MonoBehaviour
     {
         startButton.gameObject.SetActive(tmp);
         exitButton.gameObject.SetActive(tmp);
-
-        Debug.Log("ChangeStartNExit");
     }
 
     public void ChangeRestartNHome(bool tmp)
@@ -73,7 +98,7 @@ public class InputManager : MonoBehaviour
     public void InitOnClick()
     {
         //bet
-        betButton.onClick.AddListener(() => uiManager.ConfirmBetAndStartGame());
+        confirmBetButton.onClick.AddListener(() => uiManager.ConfirmBetAndStartGame());
         upArrow.onClick.AddListener(() => betManager.UpArrow());
         downArrow.onClick.AddListener(() => betManager.DownArrow());
         leftArrow.onClick.AddListener(() => betManager.LeftArrow());
@@ -93,7 +118,26 @@ public class InputManager : MonoBehaviour
         //restart
         restartButton.onClick.AddListener(() => gameManager.OnBet());
         homeButton.onClick.AddListener(() => gameManager.OnMenu());
+    }
+
+
+    private void UpdateButtonStates()
+    {
+        int playerChips = betManager.GetPlayerChips();
+        int currentBet = betManager.GetCurrentBet();
+        int initialChips = betManager.GetInitialChips();
+
+        rightArrow.interactable = playerChips - 10 >= currentBet;
+        leftArrow.interactable = currentBet - 10 >= initialChips;
+        upArrow.interactable = playerChips - 100 >= currentBet;
+        downArrow.interactable = currentBet - 100 >= initialChips;
+        confirmBetButton.interactable = currentBet <= playerChips;
+
+        startButton.interactable = uiManager.GetCanPlay();
+        restartButton.interactable = uiManager.GetCanPlay();
 
     }
 
+
 }
+

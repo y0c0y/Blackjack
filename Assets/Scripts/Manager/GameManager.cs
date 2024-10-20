@@ -132,7 +132,8 @@ public class GameManager : MonoBehaviour
     public void OnBet()
     {
        HandClear();
-        uiManager.ShowBetting();
+       betManager.InitBetting();
+       uiManager.ShowBetting();
     }
 
     public void ExitGame() {

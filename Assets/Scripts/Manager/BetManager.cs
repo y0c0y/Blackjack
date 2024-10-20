@@ -5,93 +5,91 @@ using UnityEngine.UI;
 
 public class BetManager : MonoBehaviour
 {
-    public Text chipText;
-    public Text betAmountText;
+
 
     private int currentBet = 0;
     private int playerChips = 0;  // Set initial chips
     private int initialChips = 200;
 
-    public int CurrentBet { get => currentBet; }
-    public int PlayerChips { get => playerChips; }
-    //public int InitialChips { get => initialChips; }
+    public int GetCurrentBet() => currentBet;
+    public int GetPlayerChips() => playerChips;
+
+    public int GetInitialChips() => initialChips;
+
     public void SetPlayerChips(int chips) => playerChips = chips;
 
-    //public void SetInitialChips(int chips) => initialChips = chips;
     public void SetCurrentBet(int bet) => currentBet = bet;
 
-    private GameManager gameManager;
+    public GameManager gameManager;
+    public UIManager uiManager;
 
     void Start()
     {
-
-        currentBet = initialChips;
-
-
         gameManager = FindObjectOfType<GameManager>();
-        if (gameManager == null)
+        uiManager = FindObjectOfType<UIManager>();
+        if (gameManager == null || uiManager == null)
         {
             Debug.LogError("No GameManager found in the scene!");
             return;
         }
+    }
 
-        UpdateChipUI();
-        UpdateBetUI();
+    public void InitBetting()
+    {
+
+        playerChips = gameManager.game.GetPlayer().GetChips();
+        currentBet = initialChips;
+
+        uiManager.UpdateChipUI();
+        uiManager.UpdateBetUI();
     }
 
     public void RightArrow()
     {
-        if (playerChips > currentBet) // Only increase if the player has enough chips
+        if (playerChips - 10 >= currentBet) 
         {
-            currentBet += 10; // Adjust increment as needed
-            UpdateBetUI();
+            currentBet += 10;
+            uiManager.UpdateBetUI();
         }
     }
 
     public void LeftArrow()
     {
-        if (currentBet > initialChips)
+        if (currentBet - 10 >= initialChips)
         {
-            currentBet -= 10; // Adjust decrement as needed
-            UpdateBetUI();
+            currentBet -= 10;
+            uiManager.UpdateBetUI();
         }
     }
 
     public void UpArrow()
     {
-        if (playerChips > currentBet) // Only increase if the player has enough chips
+        if (playerChips - 100 >= currentBet)
         {
-            currentBet += 100; // Adjust increment as needed
-            UpdateBetUI();
+            currentBet += 100;
+            uiManager.UpdateBetUI();
         }
     }
 
     public void DownArrow()
     {
-        if (currentBet > initialChips)
+        if (currentBet - 100 >= initialChips)
         {
-            currentBet -= 100; // Adjust decrement as needed
-            UpdateBetUI();
+            currentBet -= 100;
+            uiManager.UpdateBetUI();
         }
     }
 
     public void ConfirmBet()
     {
-        if (currentBet <= playerChips) // Ensure bet is valid
+        if (currentBet <= playerChips) 
         {
             playerChips -= currentBet;
-            UpdateChipUI();
-            // Pass the bet to the GameManager or start the round here
+            uiManager.UpdateChipUI();
+
+            gameManager.game.GetPlayer().SetChips(playerChips);
+            gameManager.game.GetPlayer().SetBet(currentBet);
         }
     }
 
-    private void UpdateChipUI()
-    {
-        chipText.text = "Chips: " + playerChips.ToString();
-    }
-
-    private void UpdateBetUI()
-    {
-        betAmountText.text = "Bet: " + currentBet.ToString();
-    }
 }
